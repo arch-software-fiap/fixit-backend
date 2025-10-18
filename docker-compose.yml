@@ -1,0 +1,12 @@
+services:
+  postgres_fixitbackend:
+      image: postgres:16
+      container_name: postgres_fixitbackend
+      environment:
+        - POSTGRES_USER=${POSTGRES_USER:-fixitbackend}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-fixitbackend}
+        - POSTGRES_DB=${POSTGRES_DB:-fixitbackend}
+      ports:
+        - 5432:5432
+      volumes:
+        - .docker/postgres/:/docker-entrypoint-initdb.d
