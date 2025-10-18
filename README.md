@@ -1,18 +1,6 @@
 ## EXECUÇÃO LOCAL
 
-### Rodando instância postgres:
+### Rodando aplicação:
 ```shell
-    docker compose up
-```
-<hr/>
-
-### Configurando java:
-```shell
-    sdk env install  && sdk env
-```
-<hr/>
-
-### Rodando a aplicação:
-```shell
-    mvn clean spring-boot:run
+docker compose up --build --remove-orphans
 ```

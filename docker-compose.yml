@@ -1,7 +1,23 @@
 services:
-  postgres_fixitbackend:
+  # APPLICICATION
+  fixit-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fixit-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-fixit-backend:
+        condition: service_healthy
+    networks:
+      - fixit-backend-network
+    restart: unless-stopped
+
+  # DATABASE
+  postgres-fixit-backend:
       image: postgres:16
-      container_name: postgres_fixitbackend
+      container_name: postgres-fixit-backend
       environment:
         - POSTGRES_USER=${POSTGRES_USER:-fixitbackend}
         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-fixitbackend}
@@ -10,3 +26,16 @@ services:
         - 5432:5432
       volumes:
         - .docker/postgres/:/docker-entrypoint-initdb.d
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fixitbackend} && psql -U ${POSTGRES_USER:-fixitbackend} -d ${POSTGRES_DB:-fixitbackend} -c 'SELECT 1' > /dev/null 2>&1" ]
+        interval: 30s
+        timeout: 5s
+        retries: 5
+        start_period: 10s
+      networks:
+        - fixit-backend-network
+
+networks:
+  fixit-backend-network:
+    name: fixit-backend-network
+    driver: bridge
