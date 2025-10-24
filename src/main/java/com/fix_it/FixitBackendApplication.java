@@ -1,4 +1,4 @@
-package com.gitlab.pos13soat.fixitbackend;
+package com.fix_it;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

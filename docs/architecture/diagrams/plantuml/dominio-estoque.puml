@@ -1,0 +1,46 @@
+@startuml diagram
+page 4x4
+skinparam defaultFontName Trebuchet MS
+skinparam ClassBackgroundColor<<View>> LightCyan
+skinparam ClassBackgroundColor<<Embeddable>> WhiteSmoke
+left to right direction
+
+package "com.fix_it" <<Frame>> {
+
+    class ItemEstoque {
+        - sq_item_estoque: Long {id}
+        - nm_item_estoque: String
+        - ds_item_estoque: String
+        - vl_preco_unitario: Long
+        - qt_estoque_atual: Integer
+        - qt_estoque_minimo: Integer
+        - dth_atualizacao: LocalDateTime
+        -- tagged values --
+        <b>@table.name</b>: item_estoque
+        <b>@sequence.name</b>: sq_item_estoque
+        <b>@tp_item.allowed</b>: PECA | INSUMO
+    }
+
+    class MovimentoEstoque {
+        - sq_movimento_estoque: Long {id}
+        - dth_movimento: LocalDateTime
+        - nm_tipo_movimento: String   ' ENTRADA | SAIDA | AJUSTE
+        - qt_mov: Integer
+        - ds_movimento: String
+        -- tagged values --
+        <b>@table.name</b>: movimento_estoque
+        <b>@status.allowed</b>: ENTRADA|SAIDA|AJUSTE
+        <b>@sequence.name</b>: sq_movimento_estoque
+    }
+
+    ' stub para vincular saída ao item lançado na OS
+    class ItemPecaOS <<external>>
+    note right: Referência à entidade do diagrama "dominio-os.puml"
+
+}
+
+' ===== RELACIONAMENTOS =====
+MovimentoEstoque  "0..*" --> "1"    ItemEstoque
+MovimentoEstoque  "0..*" --> "0..1" ItemPecaOS
+
+@enduml
