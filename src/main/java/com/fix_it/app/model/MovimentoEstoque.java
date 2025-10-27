@@ -20,10 +20,10 @@ import java.time.LocalDateTime;
 public class MovimentoEstoque {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_movimento_estoque_seq")
-    @SequenceGenerator(name = "sq_movimento_estoque_seq", sequenceName = "sq_movimento_estoque", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_movimento_estoque")
+    @SequenceGenerator(name = "sq_movimento_estoque", sequenceName = "sq_movimento_estoque", allocationSize = 1)
     @Column(name = "sq_movimento_estoque")
-    private Long sqMovimentoEstoque;
+    private Long id;
 
     @Column(name = "dth_movimento", updatable = false)
     private LocalDateTime dthMovimento;

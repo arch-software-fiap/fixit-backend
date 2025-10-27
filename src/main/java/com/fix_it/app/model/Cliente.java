@@ -21,10 +21,10 @@ import java.time.LocalDateTime;
 public class Cliente {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_cliente_seq")
-    @SequenceGenerator(name = "sq_cliente_seq", sequenceName = "sq_cliente", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_cliente")
+    @SequenceGenerator(name = "sq_cliente", sequenceName = "sq_cliente", allocationSize = 1)
     @Column(name = "sq_cliente")
-    private Long sqCliente;
+    private Long id;
 
     @NotBlank
     @Size(max = 255)

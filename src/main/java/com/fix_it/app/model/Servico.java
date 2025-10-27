@@ -22,10 +22,10 @@ import java.util.List;
 public class Servico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_servico_seq")
-    @SequenceGenerator(name = "sq_servico_seq", sequenceName = "sq_servico", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_servico")
+    @SequenceGenerator(name = "sq_servico", sequenceName = "sq_servico", allocationSize = 1)
     @Column(name = "sq_servico")
-    private Long sqServico;
+    private Long id;
 
     @NotBlank
     @Size(max = 255)

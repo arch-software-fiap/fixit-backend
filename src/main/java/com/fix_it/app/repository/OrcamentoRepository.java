@@ -10,10 +10,10 @@ import java.util.Optional;
 @Repository
 public interface OrcamentoRepository extends JpaRepository<Orcamento, Long> {
     
-    Optional<Orcamento> findByOrdemServicoSqOs(Long sqOs);
+//    Optional<Orcamento> findByOrdemServicoSqOs(Long sqOs);
     
     List<Orcamento> findByNmStatus(String nmStatus);
     
-    boolean existsByOrdemServicoSqOs(Long sqOs);
+//    boolean existsByOrdemServicoSqOs(Long sqOs);
 }
 

@@ -18,10 +18,10 @@ import lombok.Setter;
 public class ItemServicoOS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_servico_os_seq")
-    @SequenceGenerator(name = "sq_item_servico_os_seq", sequenceName = "sq_item_servico_os", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_servico_os")
+    @SequenceGenerator(name = "sq_item_servico_os", sequenceName = "sq_item_servico_os", allocationSize = 1)
     @Column(name = "sq_item_servico_os")
-    private Long sqItemServicoOS;
+    private Long id;
 
     @Positive
     @Column(name = "qt_horas")

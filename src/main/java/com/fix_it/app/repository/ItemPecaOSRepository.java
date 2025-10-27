@@ -9,8 +9,8 @@ import java.util.List;
 @Repository
 public interface ItemPecaOSRepository extends JpaRepository<ItemPecaOS, Long> {
     
-    List<ItemPecaOS> findByOrdemServicoSqOs(Long sqOs);
+//    List<ItemPecaOS> findByOrdemServicoSqOs(Long sqOs);
     
-    List<ItemPecaOS> findByItemEstoqueSqItemEstoque(Long sqItemEstoque);
+//    List<ItemPecaOS> findByItemEstoqueSqItemEstoque(Long sqItemEstoque);
 }
 

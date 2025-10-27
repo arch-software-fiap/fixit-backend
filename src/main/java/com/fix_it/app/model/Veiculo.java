@@ -19,10 +19,10 @@ import java.time.LocalDateTime;
 public class Veiculo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_veiculo_seq")
-    @SequenceGenerator(name = "sq_veiculo_seq", sequenceName = "sq_veiculo", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_veiculo")
+    @SequenceGenerator(name = "sq_veiculo", sequenceName = "sq_veiculo", allocationSize = 1)
     @Column(name = "sq_veiculo")
-    private Long sqVeiculo;
+    private Long id;
 
     @NotBlank
     @Size(max = 255)

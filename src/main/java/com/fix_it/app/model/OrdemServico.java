@@ -22,10 +22,10 @@ import java.util.List;
 public class OrdemServico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os_seq")
-    @SequenceGenerator(name = "sq_os_seq", sequenceName = "sq_os", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os")
+    @SequenceGenerator(name = "sq_os", sequenceName = "sq_os", allocationSize = 1)
     @Column(name = "sq_os")
-    private Long sqOs;
+    private Long id;
 
     @NotBlank
     @Column(name = "nm_status")

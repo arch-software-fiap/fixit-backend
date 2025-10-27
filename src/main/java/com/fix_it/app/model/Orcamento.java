@@ -20,10 +20,10 @@ import java.time.LocalDateTime;
 public class Orcamento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_orcamento_seq")
-    @SequenceGenerator(name = "sq_orcamento_seq", sequenceName = "sq_orcamento", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_orcamento")
+    @SequenceGenerator(name = "sq_orcamento", sequenceName = "sq_orcamento", allocationSize = 1)
     @Column(name = "sq_orcamento")
-    private Long sqOrcamento;
+    private Long id;
 
     @Column(name = "dth_geracao", updatable = false)
     private LocalDateTime dthGeracao;

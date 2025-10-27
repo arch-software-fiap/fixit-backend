@@ -5,6 +5,11 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: fixit-backend
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-fixit-backend:5432/fixitbackend
+      - SPRING_DATASOURCE_USERNAME=fixitbackend
+      - SPRING_DATASOURCE_PASSWORD=fixitbackend
+      - KEYCLOAK_SERVER_URL=http://keycloak:8080
     ports:
       - "8080:8081"
     depends_on:

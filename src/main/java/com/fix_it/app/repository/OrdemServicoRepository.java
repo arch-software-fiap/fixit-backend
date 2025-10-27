@@ -9,9 +9,9 @@ import java.util.List;
 @Repository
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Long> {
     
-    List<OrdemServico> findByClienteSqCliente(Long sqCliente);
+//    List<OrdemServico> findByClienteSqCliente(Long sqCliente);
     
-    List<OrdemServico> findByVeiculoSqVeiculo(Long sqVeiculo);
+//    List<OrdemServico> findByVeiculoSqVeiculo(Long sqVeiculo);
     
     List<OrdemServico> findByNmStatus(String nmStatus);
 }

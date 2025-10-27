@@ -21,10 +21,10 @@ import java.util.List;
 public class ItemPecaOS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_peca_os_seq")
-    @SequenceGenerator(name = "sq_item_peca_os_seq", sequenceName = "sq_item_peca_os", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_peca_os")
+    @SequenceGenerator(name = "sq_item_peca_os", sequenceName = "sq_item_peca_os", allocationSize = 1)
     @Column(name = "sq_item_peca_os")
-    private Long sqItemPecaOS;
+    private Long id;
 
     @Positive
     @Column(name = "qt_itens")

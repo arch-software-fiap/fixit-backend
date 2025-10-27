@@ -9,8 +9,8 @@ import java.util.List;
 @Repository
 public interface ItemServicoOSRepository extends JpaRepository<ItemServicoOS, Long> {
     
-    List<ItemServicoOS> findByOrdemServicoSqOs(Long sqOs);
+//    List<ItemServicoOS> findByOrdemServicoSqOs(Long sqOs);
     
-    List<ItemServicoOS> findByServicoSqServico(Long sqServico);
+//    List<ItemServicoOS> findByServicoSqServico(Long sqServico);
 }
 
