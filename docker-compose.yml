@@ -6,9 +6,11 @@ services:
       dockerfile: Dockerfile
     container_name: fixit-backend
     ports:
-      - "8080:8080"
+      - "8080:8081"
     depends_on:
       postgres-fixit-backend:
+        condition: service_healthy
+      keycloak:
         condition: service_healthy
     networks:
       - fixit-backend-network
@@ -35,6 +37,27 @@ services:
       networks:
         - fixit-backend-network
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+    command:
+      - start-dev
+    ports:
+      - "8085:8080"
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/8080' || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    networks:
+      - fixit-backend-network
 networks:
   fixit-backend-network:
     name: fixit-backend-network
