@@ -1,4 +1,4 @@
-    package com.fix_it;
+    package com.fix_it.core.config;
 
     import org.springframework.context.annotation.Bean;
     import org.springframework.context.annotation.Configuration;
