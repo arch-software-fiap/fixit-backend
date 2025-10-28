@@ -21,9 +21,9 @@ import java.util.List;
 public class ItemPecaOS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_peca_os")
-    @SequenceGenerator(name = "sq_item_peca_os", sequenceName = "sq_item_peca_os", allocationSize = 1)
-    @Column(name = "sq_item_peca_os")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os_item")
+    @SequenceGenerator(name = "sq_os_item", sequenceName = "sq_os_item", allocationSize = 1)
+    @Column(name = "sq_os_item")
     private Long id;
 
     @Positive
@@ -39,12 +39,12 @@ public class ItemPecaOS {
     private Long vlPrecoTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_os")
+    @JoinColumn(name = "sq_ordem_servico", foreignKey = @ForeignKey(name = "FK_ITEMPECA_ORDEMSERVICO"), referencedColumnName = "sq_ordem_servico")
     @NotNull
     private OrdemServico ordemServico;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_item_estoque")
+    @JoinColumn(name = "sq_item_estoque", foreignKey = @ForeignKey(name = "FK_ITEMPECA_ITEMESTOQUE"), referencedColumnName = "sq_item_estoque")
     @NotNull
     private ItemEstoque itemEstoque;
 

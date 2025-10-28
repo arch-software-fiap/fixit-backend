@@ -1,17 +1,23 @@
 package com.fix_it.app.model;
 
+import com.fix_it.app.model.enums.SituacaoOrcamento;
+import com.fix_it.app.model.enums.TipoItemEstoque;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.fix_it.app.model.enums.SituacaoOrcamento.GERADO;
 
 @Entity
 @Table(name = "item_estoque")
@@ -50,9 +56,11 @@ public class ItemEstoque {
     @Column(name = "dth_atualizacao")
     private LocalDateTime dthAtualizacao;
 
-    @Column(name = "tp_item")
-    @NotBlank
-    private String tpItem; // PECA ou INSUMO
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TP_ITEM")
+    @NotNull
+    @Check(constraints = "TP_ITEM in ('PECA', 'INSUMO')")
+    private TipoItemEstoque tipo;
 
     @OneToMany(mappedBy = "itemEstoque", fetch = FetchType.LAZY)
     private List<MovimentoEstoque> movimentosEstoque = new ArrayList<>();

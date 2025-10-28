@@ -23,14 +23,14 @@ services:
 
   # DATABASE
   postgres-fixit-backend:
-      image: postgres:16
+      image: postgres:18
       container_name: postgres-fixit-backend
       environment:
         - POSTGRES_USER=${POSTGRES_USER:-fixitbackend}
         - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-fixitbackend}
         - POSTGRES_DB=${POSTGRES_DB:-fixitbackend}
       ports:
-        - 5432:5432
+        - "5432:5432"
       volumes:
         - .docker/postgres/:/docker-entrypoint-initdb.d
       healthcheck:

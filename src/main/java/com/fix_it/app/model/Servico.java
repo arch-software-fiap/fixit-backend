@@ -42,6 +42,7 @@ public class Servico {
     @Column(name = "dth_atualizacao")
     private LocalDateTime dthAtualizacao;
 
+
     @OneToMany(mappedBy = "servico", fetch = FetchType.LAZY)
     private List<ItemServicoOS> itensServicoOS = new ArrayList<>();
 

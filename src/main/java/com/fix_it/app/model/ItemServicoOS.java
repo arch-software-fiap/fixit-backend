@@ -18,9 +18,9 @@ import lombok.Setter;
 public class ItemServicoOS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_servico_os")
-    @SequenceGenerator(name = "sq_item_servico_os", sequenceName = "sq_item_servico_os", allocationSize = 1)
-    @Column(name = "sq_item_servico_os")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os_servico")
+    @SequenceGenerator(name = "sq_os_servico", sequenceName = "sq_os_servico", allocationSize = 1)
+    @Column(name = "sq_os_servico")
     private Long id;
 
     @Positive
@@ -36,12 +36,12 @@ public class ItemServicoOS {
     private Long vlPrecoTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_os")
+    @JoinColumn(name = "sq_ordem_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_ORDEM"), referencedColumnName = "sq_ordem_servico")
     @NotNull
     private OrdemServico ordemServico;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_servico")
+    @JoinColumn(name = "sq_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_SERVICO"))
     @NotNull
     private Servico servico;
 }

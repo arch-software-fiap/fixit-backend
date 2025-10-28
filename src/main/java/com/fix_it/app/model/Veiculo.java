@@ -52,7 +52,7 @@ public class Veiculo {
     private LocalDateTime dthCadastro;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_cliente")
+    @JoinColumn(name = "sq_cliente", foreignKey = @ForeignKey(name = "FK_VEICULO_CLIENTE"))
     private Cliente cliente;
 
     @PrePersist

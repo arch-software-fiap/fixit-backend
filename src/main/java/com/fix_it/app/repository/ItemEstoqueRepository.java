@@ -11,7 +11,7 @@ public interface ItemEstoqueRepository extends JpaRepository<ItemEstoque, Long> 
     
     List<ItemEstoque> findByNmItemEstoqueContainingIgnoreCase(String nome);
     
-    List<ItemEstoque> findByTpItem(String tpItem);
+//    List<ItemEstoque> findByTpItem(String tpItem);
     
     List<ItemEstoque> findByOrderByNmItemEstoqueAsc();
     

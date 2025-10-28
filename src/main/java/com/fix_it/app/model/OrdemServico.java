@@ -1,13 +1,14 @@
 package com.fix_it.app.model;
 
+import com.fix_it.app.model.enums.SituacaoOrdemServico;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,23 +23,25 @@ import java.util.List;
 public class OrdemServico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_ordem_servico")
     @SequenceGenerator(name = "sq_os", sequenceName = "sq_os", allocationSize = 1)
-    @Column(name = "sq_os")
+    @Column(name = "sq_ordem_servico")
     private Long id;
 
-    @NotBlank
-    @Column(name = "nm_status")
-    private String nmStatus; // RECEBIDA, EM_DIAGNOSTICO, AGUARDANDO_APROVACAO, EM_EXECUCAO, FINALIZADA, ENTREGUE
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nm_situacao")
+    @NotNull
+    @Check(constraints = "nm_situacao in ('RECEBIDA', 'EM_DIAGNOSTICO', 'AGUARDANDO_APROVACAO', 'EM_EXECUCAO', 'FINALIZADA', 'ENTREGUE')")
+    private SituacaoOrdemServico situacao;
+
+    @Column(name = "ds_os", columnDefinition = "TEXT")
+    private String dsOs;
 
     @Column(name = "dth_abertura", updatable = false)
     private LocalDateTime dthAbertura;
 
     @Column(name = "dth_fechamento")
     private LocalDateTime dthFechamento;
-
-    @Column(name = "ds_os", columnDefinition = "TEXT")
-    private String dsOs;
 
     @PositiveOrZero
     @Column(name = "vl_orcamento_total")
@@ -49,12 +52,12 @@ public class OrdemServico {
     private Long vlTotalFinal;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_cliente")
+    @JoinColumn(name = "sq_cliente", foreignKey = @ForeignKey(name = "FK_ORDEMSERVICO_CLIENTE"), referencedColumnName = "sq_cliente")
     @NotNull
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_veiculo")
+    @JoinColumn(name = "sq_veiculo", foreignKey = @ForeignKey(name = "FK_ORDEMSERVICO_VEICULO"), referencedColumnName = "sq_veiculo")
     @NotNull
     private Veiculo veiculo;
 

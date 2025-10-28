@@ -40,12 +40,12 @@ public class MovimentoEstoque {
     private String dsMovimento;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_item_estoque")
+    @JoinColumn(name = "sq_item_estoque", foreignKey = @ForeignKey(name = "FK_MOVIMENTO_ITEMESTOQUE"), referencedColumnName = "sq_item_estoque")
     @NotNull
     private ItemEstoque itemEstoque;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_item_peca_os")
+    @JoinColumn(name = "sq_item_peca_os", foreignKey = @ForeignKey(name = "FK_MOVIMENTO_ITEMPECAOS"), referencedColumnName = "sq_os_item")
     private ItemPecaOS itemPecaOS;
 
     @PrePersist

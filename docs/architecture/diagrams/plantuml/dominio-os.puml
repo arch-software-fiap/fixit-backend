@@ -72,13 +72,13 @@ package "com.fix_it" <<Frame>> {
     }
 
     class ItemServicoOS {
-        - sq_item_servico_os: Long {id}
+        - sq_os_servico: Long {id}
         - qt_horas: Integer
         - vl_preco_unitario: Long
         - vl_preco_total: Long
         -- tagged values --
-        <b>@table.name</b>: os_servico
-        <b>@sequence.name</b>: sq_item_servico_os
+        <b>@table.name</b>: sq_os_servico
+        <b>@sequence.name</b>: sq_os_servico
     }
 
     class ItemPecaOS {
