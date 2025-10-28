@@ -8,12 +8,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-@Table(name = "os_item")
+@Table(name = "os_item", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_os_item", columnNames = "sq_os_item")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,10 +25,10 @@ import java.util.List;
 public class ItemPecaOS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os_item")
-    @SequenceGenerator(name = "sq_os_item", sequenceName = "sq_os_item", allocationSize = 1)
-    @Column(name = "sq_os_item")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_os_item", nullable = false, updatable = false)
+    private UUID id;
 
     @Positive
     @Column(name = "qt_itens")

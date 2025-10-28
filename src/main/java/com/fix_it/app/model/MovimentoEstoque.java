@@ -8,22 +8,26 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "movimento_estoque")
 @Getter
+@Table(name = "movimento_estoque", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_movimento_estoque", columnNames = "sq_movimento_estoque")
+})
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovimentoEstoque {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_movimento_estoque")
-    @SequenceGenerator(name = "sq_movimento_estoque", sequenceName = "sq_movimento_estoque", allocationSize = 1)
-    @Column(name = "sq_movimento_estoque")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_movimento_estoque", columnDefinition = "UUID", nullable = false, updatable = false)
+    private UUID id;
 
     @Column(name = "dth_movimento", updatable = false)
     private LocalDateTime dthMovimento;

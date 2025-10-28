@@ -9,13 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static com.fix_it.app.model.enums.SituacaoOrcamento.GERADO;
 
 @Entity
-@Table(name = "orcamento")
+@Table(name = "orcamento", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_orcamento", columnNames = "sq_orcamento")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,10 +27,10 @@ import static com.fix_it.app.model.enums.SituacaoOrcamento.GERADO;
 public class Orcamento {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_orcamento")
-    @SequenceGenerator(name = "sq_orcamento", sequenceName = "sq_orcamento", allocationSize = 1)
-    @Column(name = "sq_orcamento")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_orcamento", columnDefinition = "UUID", nullable = false, updatable = false)
+    private UUID id;
 
     @Column(name = "dth_geracao", updatable = false)
     private LocalDateTime dthGeracao;

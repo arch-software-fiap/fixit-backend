@@ -8,9 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
+
+import java.util.UUID;
 
 @Entity
-@Table(name = "os_servico")
+@Table(name = "os_servico", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_os_servico", columnNames = "sq_os_servico")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,10 +23,10 @@ import lombok.Setter;
 public class ItemServicoOS {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_os_servico")
-    @SequenceGenerator(name = "sq_os_servico", sequenceName = "sq_os_servico", allocationSize = 1)
-    @Column(name = "sq_os_servico")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_os_servico", columnDefinition = "UUID", nullable = false, updatable = false)
+    private UUID id;
 
     @Positive
     @Column(name = "qt_horas")
@@ -41,7 +46,7 @@ public class ItemServicoOS {
     private OrdemServico ordemServico;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sq_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_SERVICO"))
+    @JoinColumn(name = "sq_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_SERVICO"), referencedColumnName = "sq_servico")
     @NotNull
     private Servico servico;
 }

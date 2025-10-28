@@ -9,13 +9,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
-@Table(name = "ordem_servico")
+@Table(name = "ordem_servico", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_ordem_servico", columnNames = "sq_ordem_servico")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -23,10 +27,10 @@ import java.util.List;
 public class OrdemServico {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_ordem_servico")
-    @SequenceGenerator(name = "sq_os", sequenceName = "sq_os", allocationSize = 1)
-    @Column(name = "sq_ordem_servico")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_ordem_servico", columnDefinition = "UUID", nullable = false, updatable = false)
+    private UUID id;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "nm_situacao")

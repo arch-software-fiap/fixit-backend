@@ -1,6 +1,5 @@
 package com.fix_it.app.model;
 
-import com.fix_it.app.model.enums.SituacaoOrcamento;
 import com.fix_it.app.model.enums.TipoItemEstoque;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -12,15 +11,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Check;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.fix_it.app.model.enums.SituacaoOrcamento.GERADO;
+import java.util.UUID;
 
 @Entity
-@Table(name = "item_estoque")
+@Table(name = "item_estoque", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_item_estoque", columnNames = "sq_item_estoque")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,10 +29,10 @@ import static com.fix_it.app.model.enums.SituacaoOrcamento.GERADO;
 public class ItemEstoque {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_item_estoque")
-    @SequenceGenerator(name = "sq_item_estoque", sequenceName = "sq_item_estoque", allocationSize = 1)
-    @Column(name = "sq_item_estoque")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_item_estoque", nullable = false, updatable = false)
+    private UUID id;
 
     @NotBlank
     @Size(max = 255)

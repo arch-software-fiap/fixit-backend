@@ -7,11 +7,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
-@Table(name = "veiculo")
+@Table(name = "veiculo", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_veiculo", columnNames = "sq_veiculo")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,10 +23,10 @@ import java.time.LocalDateTime;
 public class Veiculo {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sq_veiculo")
-    @SequenceGenerator(name = "sq_veiculo", sequenceName = "sq_veiculo", allocationSize = 1)
-    @Column(name = "sq_veiculo")
-    private Long id;
+    @GeneratedValue
+    @UuidGenerator
+    @Column(name = "sq_veiculo", columnDefinition = "UUID", nullable = false, updatable = false)
+    private UUID id;
 
     @NotBlank
     @Size(max = 255)
