@@ -13,8 +13,8 @@ import org.hibernate.annotations.UuidGenerator;
 import java.util.UUID;
 
 @Entity
-@Table(name = "os_servico", uniqueConstraints = {
-        @UniqueConstraint(name = "PK_os_servico", columnNames = "sq_os_servico")
+@Table(name = "os_item_servico", uniqueConstraints = {
+        @UniqueConstraint(name = "PK_os_item_servico", columnNames = "sq_os_item_servico")
 })
 @Getter
 @Setter
@@ -25,7 +25,7 @@ public class ItemServicoOS {
     @Id
     @GeneratedValue
     @UuidGenerator
-    @Column(name = "sq_os_servico", columnDefinition = "UUID", nullable = false, updatable = false)
+    @Column(name = "sq_os_item_servico", columnDefinition = "UUID", nullable = false, updatable = false)
     private UUID id;
 
     @Positive

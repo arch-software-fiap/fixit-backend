@@ -72,7 +72,7 @@ package "com.fix_it" <<Frame>> {
     }
 
     class ItemServicoOS {
-        - sq_os_servico: Long {id}
+        - sq_os_item_servico: Long {id}
         - qt_horas: Integer
         - vl_preco_unitario: Long
         - vl_preco_total: Long
