@@ -39,21 +39,21 @@ public class OrdemServico {
     private SituacaoOrdemServico situacao;
 
     @Column(name = "ds_os", columnDefinition = "TEXT")
-    private String dsOs;
+    private String descricao;
 
     @Column(name = "dth_abertura", updatable = false)
-    private LocalDateTime dthAbertura;
+    private LocalDateTime dataAberturaEm;
 
     @Column(name = "dth_fechamento")
-    private LocalDateTime dthFechamento;
+    private LocalDateTime dataFechamentoEm;
 
     @PositiveOrZero
     @Column(name = "vl_orcamento_total")
-    private Long vlOrcamentoTotal;
+    private Long valorOrcamentoTotal;
 
     @PositiveOrZero
     @Column(name = "vl_total_final")
-    private Long vlTotalFinal;
+    private Long valorTotalFinal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sq_cliente", foreignKey = @ForeignKey(name = "FK_ORDEMSERVICO_CLIENTE"), referencedColumnName = "sq_cliente")
@@ -76,6 +76,6 @@ public class OrdemServico {
 
     @PrePersist
     public void prePersist() {
-        dthAbertura = LocalDateTime.now();
+        dataAberturaEm = LocalDateTime.now();
     }
 }

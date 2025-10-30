@@ -30,15 +30,15 @@ public class ItemServicoOS {
 
     @Positive
     @Column(name = "qt_horas")
-    private Integer qtHoras;
+    private Integer quantidadeHoras;
 
     @PositiveOrZero
     @Column(name = "vl_preco_unitario")
-    private Long vlPrecoUnitario;
+    private Long valorUnitario;
 
     @PositiveOrZero
     @Column(name = "vl_preco_total")
-    private Long vlPrecoTotal;
+    private Long valorTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sq_ordem_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_ORDEM"), referencedColumnName = "sq_ordem_servico")

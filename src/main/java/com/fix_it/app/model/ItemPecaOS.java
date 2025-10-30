@@ -1,9 +1,7 @@
 package com.fix_it.app.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,17 +28,25 @@ public class ItemPecaOS {
     @Column(name = "sq_os_item", nullable = false, updatable = false)
     private UUID id;
 
+    @NotBlank
+    @Size(max = 255)
+    @Column(name = "nm_os_item")
+    private String nome;
+
+    @Column(name = "ds_os_item", columnDefinition = "TEXT")
+    private String descricao;
+
     @Positive
     @Column(name = "qt_itens")
-    private Integer qtItens;
+    private Integer quantidade;
 
     @PositiveOrZero
     @Column(name = "vl_preco_unitario")
-    private Long vlPrecoUnitario;
+    private Long valorUnitario;
 
     @PositiveOrZero
     @Column(name = "vl_preco_total")
-    private Long vlPrecoTotal;
+    private Long valorTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sq_ordem_servico", foreignKey = @ForeignKey(name = "FK_ITEMPECA_ORDEMSERVICO"), referencedColumnName = "sq_ordem_servico")
