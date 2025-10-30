@@ -9,13 +9,13 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-fixit-backend:5432/fixitbackend
       - SPRING_DATASOURCE_USERNAME=fixitbackend
       - SPRING_DATASOURCE_PASSWORD=fixitbackend
-      - KEYCLOAK_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_SERVER_URL=http://keycloak-fixit-backend:8080
     ports:
       - "8080:8081"
     depends_on:
       postgres-fixit-backend:
         condition: service_healthy
-      keycloak:
+      keycloak-fixit-backend:
         condition: service_healthy
     networks:
       - fixit-backend-network
@@ -42,9 +42,9 @@ services:
       networks:
         - fixit-backend-network
 
-  keycloak:
+  keycloak-fixit-backend:
     image: quay.io/keycloak/keycloak:23.0
-    container_name: keycloak
+    container_name: keycloak-fixit-backend
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -53,6 +53,9 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: false
     command:
       - start-dev
+      - --import-realm
+    volumes:
+      - .docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
     ports:
       - "8085:8080"
     healthcheck:

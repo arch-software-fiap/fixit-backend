@@ -1,5 +1,6 @@
 package com.fix_it.core.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -11,11 +12,13 @@ import java.util.List;
 @Component
 public class JwtDecoderConfig {
 
+    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
+    private String KEYCLOAK_SERVER_URL;
+
     @Bean
     public JwtDecoder jwtDecoder() {
-        String jwkSetUri = "http://keycloak:8080/realms/fixit/protocol/openid-connect/certs";
 
-        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+        NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(KEYCLOAK_SERVER_URL).build();
 
         OAuth2TokenValidator<Jwt> withTimestamp = new JwtTimestampValidator();
         OAuth2TokenValidator<Jwt> withAudience =
