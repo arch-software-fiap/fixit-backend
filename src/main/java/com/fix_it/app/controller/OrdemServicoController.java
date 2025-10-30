@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/ordens-servico")
+@RequestMapping("/api/v1/ordens-servico")
 @RequiredArgsConstructor
 public class OrdemServicoController {
 
