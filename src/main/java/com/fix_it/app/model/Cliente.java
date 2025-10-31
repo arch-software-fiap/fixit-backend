@@ -1,5 +1,6 @@
 package com.fix_it.app.model;
 
+import com.fix_it.app.common.dto.VeiculoDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -67,5 +68,14 @@ public class Cliente {
     @PreUpdate
     public void preUpdate() {
         dthAtualizacao = LocalDateTime.now();
+    }
+
+    public void updateFrom(Cliente cliente) {
+        if (cliente == null) return;
+        this.setNmCliente(cliente.getNmCliente());
+        this.setDsCliente(cliente.getDsCliente());
+        this.setCpfCnpj(cliente.getCpfCnpj());
+        this.setEmail(cliente.getEmail());
+        this.setTelefone(cliente.getTelefone());
     }
 }
