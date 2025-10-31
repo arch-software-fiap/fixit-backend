@@ -14,6 +14,11 @@ RUN ./mvnw clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 
+RUN apk add --no-cache tzdata \
+    && cp /usr/share/zoneinfo/UTC /etc/localtime \
+    && echo "UTC" > /etc/timezone \
+    && apk del tzdata
+
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 

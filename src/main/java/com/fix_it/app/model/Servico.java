@@ -11,8 +11,6 @@ import lombok.Setter;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -46,12 +44,9 @@ public class Servico {
     @Column(name = "dth_atualizacao")
     private LocalDateTime dthAtualizacao;
 
-
-    @OneToMany(mappedBy = "servico", fetch = FetchType.LAZY)
-    private List<ItemServicoOS> itensServicoOS = new ArrayList<>();
-
-    @PreUpdate
-    public void preUpdate() {
+    @PrePersist
+    public void prePersist() {
         dthAtualizacao = LocalDateTime.now();
     }
+
 }
