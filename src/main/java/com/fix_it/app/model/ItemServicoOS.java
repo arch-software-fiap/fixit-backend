@@ -1,5 +1,8 @@
 package com.fix_it.app.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fix_it.app.common.databind.Databind;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -41,11 +44,15 @@ public class ItemServicoOS {
     private Long valorTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonSerialize(using = Databind.IdSerializer.class)
+    @JsonDeserialize(using = Databind.IdDeserializer.class)
     @JoinColumn(name = "sq_ordem_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_ORDEM"), referencedColumnName = "sq_ordem_servico")
     @NotNull
     private OrdemServico ordemServico;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonSerialize(using = Databind.IdSerializer.class)
+    @JsonDeserialize(using = Databind.IdDeserializer.class)
     @JoinColumn(name = "sq_servico", foreignKey = @ForeignKey(name = "FK_ITEMSERVICO_SERVICO"), referencedColumnName = "sq_servico")
     @NotNull
     private Servico servico;

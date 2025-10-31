@@ -1,11 +1,15 @@
 package com.fix_it.app.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fix_it.app.common.databind.Databind;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.UuidGenerator;
 
 import java.util.ArrayList;
@@ -49,15 +53,22 @@ public class ItemPecaOS {
     private Long valorTotal;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonSerialize(using = Databind.IdSerializer.class)
+    @JsonDeserialize(using = Databind.IdDeserializer.class)
     @JoinColumn(name = "sq_ordem_servico", foreignKey = @ForeignKey(name = "FK_ITEMPECA_ORDEMSERVICO"), referencedColumnName = "sq_ordem_servico")
     @NotNull
     private OrdemServico ordemServico;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonSerialize(using = Databind.IdSerializer.class)
+    @JsonDeserialize(using = Databind.IdDeserializer.class)
     @JoinColumn(name = "sq_item_estoque", foreignKey = @ForeignKey(name = "FK_ITEMPECA_ITEMESTOQUE"), referencedColumnName = "sq_item_estoque")
     @NotNull
     private ItemEstoque itemEstoque;
 
+    @BatchSize(size = 20)
+    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
+    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
     @OneToMany(mappedBy = "itemPecaOS", fetch = FetchType.LAZY)
     private List<MovimentoEstoque> movimentosEstoque = new ArrayList<>();
 }

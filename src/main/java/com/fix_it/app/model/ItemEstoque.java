@@ -1,5 +1,8 @@
 package com.fix_it.app.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fix_it.app.common.databind.Databind;
 import com.fix_it.app.model.enums.TipoItemEstoque;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.Check;
 import org.hibernate.annotations.UuidGenerator;
 
@@ -63,10 +67,16 @@ public class ItemEstoque {
     @Check(constraints = "TP_ITEM in ('PECA', 'INSUMO')")
     private TipoItemEstoque tipo;
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "itemEstoque", fetch = FetchType.LAZY)
+    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
+    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
     private List<MovimentoEstoque> movimentosEstoque = new ArrayList<>();
 
+    @BatchSize(size = 20)
     @OneToMany(mappedBy = "itemEstoque", fetch = FetchType.LAZY)
+    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
+    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
     private List<ItemPecaOS> itensPecaOS = new ArrayList<>();
 
     @PreUpdate
