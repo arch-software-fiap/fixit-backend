@@ -1,10 +1,6 @@
 package com.fix_it.app.service;
 
-import com.fix_it.app.common.dto.VeiculoDTO;
-import com.fix_it.app.common.factory.VeiculoFactory;
-import com.fix_it.app.common.utils.ValidatorUtils;
 import com.fix_it.app.model.Cliente;
-import com.fix_it.app.model.Veiculo;
 import com.fix_it.app.repository.ClienteRepository;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,11 +32,12 @@ public class ClienteService {
     public Cliente update(@Valid UUID id, @Valid Cliente cliente) {
         var existe = clienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com documento {}" + cliente.getCpfCnpj()));
-        validarCpfOrCnpj(cliente.getCpfCnpj());
+        if(!cliente.getCpfCnpj().equals(existe.getCpfCnpj())) {
+            validarCpfOrCnpj(cliente.getCpfCnpj());
+        }
         existe.updateFrom(cliente);
-        return clienteRepository.save(cliente);
+        return clienteRepository.save(existe);
     }
-
 
     private void validarClienteNaoExiste(String documento) {
         boolean existe = clienteRepository.existsByCpfCnpj(documento);

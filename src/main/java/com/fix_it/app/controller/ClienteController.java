@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/cliente")
+@RequestMapping("/api/v1/cliente")
 @RequiredArgsConstructor
 public class ClienteController {
 
