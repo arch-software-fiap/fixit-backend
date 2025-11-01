@@ -42,7 +42,7 @@ public class ClienteService {
     private void validarClienteNaoExiste(String documento) {
         boolean existe = clienteRepository.existsByCpfCnpj(documento);
         if (existe) {
-            throw new EntityExistsException("Cliente já existe com este número de documento " + documento);
+            throw new IllegalArgumentException("Cliente já existe com este número de documento " + documento);
         }
     }
 }
