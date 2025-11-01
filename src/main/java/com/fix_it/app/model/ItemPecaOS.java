@@ -66,9 +66,9 @@ public class ItemPecaOS {
     @NotNull
     private ItemEstoque itemEstoque;
 
-    @BatchSize(size = 20)
-    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
-    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
-    @OneToMany(mappedBy = "itemPecaOS", fetch = FetchType.LAZY)
-    private List<MovimentoEstoque> movimentosEstoque = new ArrayList<>();
+//    @BatchSize(size = 20)
+//    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
+//    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
+//    @OneToMany(mappedBy = "itemPecaOS", fetch = FetchType.LAZY)
+//    private List<MovimentoEstoque> movimentosEstoque = new ArrayList<>();
 }

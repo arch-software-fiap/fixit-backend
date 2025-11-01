@@ -73,21 +73,6 @@ public class OrdemServico {
     @NotNull
     private Veiculo veiculo;
 
-    @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL)
-    private Orcamento orcamento;
-
-    @BatchSize(size = 20)
-    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
-    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
-    private List<ItemServicoOS> itensServico = new ArrayList<>();
-
-    @BatchSize(size = 20)
-    @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
-    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
-    private List<ItemPecaOS> itensPeca = new ArrayList<>();
-
     @PrePersist
     public void prePersist() {
         dataAberturaEm = LocalDateTime.now();

@@ -1,15 +1,13 @@
 package com.fix_it.app.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fix_it.app.common.dto.ItemPecaDTO;
-import com.fix_it.app.common.dto.ItemServicoDTO;
 import com.fix_it.app.common.dto.OrdemServicoDTO;
-import com.fix_it.app.model.ItemPecaOS;
-import com.fix_it.app.model.ItemServicoOS;
 import com.fix_it.app.model.OrdemServico;
+import com.fix_it.app.service.OrcamentoService;
 import com.fix_it.app.service.OrdemServicoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,13 +20,21 @@ import java.util.UUID;
 public class OrdemServicoController {
 
     private final OrdemServicoService ordemServicoService;
+    private final OrcamentoService orcamentoService;
+
+    @GetMapping
+    public ResponseEntity<Page<OrdemServico>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(ordemServicoService.findAll(page, size));
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<OrdemServico> create(@Valid
-                               @RequestBody
-                               @JsonView(OrdemServicoDTO.Views.Create.class)
-                               OrdemServicoDTO dto) {
+                                               @RequestBody
+                                               @JsonView(OrdemServicoDTO.Views.Create.class)
+                                               OrdemServicoDTO dto) {
         return ResponseEntity.ok(ordemServicoService.create(dto));
     }
 
@@ -46,16 +52,14 @@ public class OrdemServicoController {
         return ordemServicoService.update(id, dto);
     }
 
-    @PostMapping("/{osId}/servicos")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ItemServicoOS> adicionarServico(@PathVariable UUID osId, @Valid @RequestBody ItemServicoDTO dto) {
-        return ResponseEntity.ok(ordemServicoService.adicionarServico(osId, dto));
+    @PostMapping("/{id}/enviar-orcamento")
+    public ResponseEntity<OrdemServico> enviarOrcamento(@PathVariable UUID id) {
+        return ResponseEntity.ok(ordemServicoService.enviarOrcamentoParaAprovacao(id));
     }
 
-    @PostMapping("/{osId}/pecas")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ItemPecaOS adicionarPeca(@PathVariable UUID osId, @Valid @RequestBody ItemPecaDTO dto) {
-        return ordemServicoService.adicionarPeca(osId, dto);
+    @PostMapping("/{id}/recalcular-orcamento")
+    public ResponseEntity<OrdemServico> recalcular(@PathVariable UUID id) {
+        return ResponseEntity.ok(orcamentoService.recalcular(id));
     }
 
     @PutMapping("/{id}/aprovar-orcamento")
