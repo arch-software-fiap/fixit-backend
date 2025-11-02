@@ -31,6 +31,7 @@
             return http
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/public/**").permitAll()
+                            .requestMatchers("/api/v1/public/**").permitAll()
                             .anyRequest().authenticated()
                     )
                     .oauth2ResourceServer(oauth2 -> oauth2
