@@ -2,7 +2,6 @@ package com.fix_it.app.service;
 
 import com.fix_it.app.model.Cliente;
 import com.fix_it.app.repository.ClienteRepository;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ public class ClienteServiceTestCase {
 
     private Cliente novoCliente(String cpfCnpj) {
         Cliente c = new Cliente();
-        c.setNmCliente("Cliente Teste");
+        c.setNome("Cliente Teste");
         c.setCpfCnpj(cpfCnpj);
         return c;
     }
@@ -77,7 +76,7 @@ public class ClienteServiceTestCase {
         existente.setId(id);
 
         Cliente atualizado = novoCliente("98765432100");
-        atualizado.setNmCliente("CLiente Atualizada");
+        atualizado.setNome("CLiente Atualizada");
 
         when(clienteRepository.findById(id)).thenReturn(Optional.of(existente));
         when(clienteRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
@@ -85,7 +84,7 @@ public class ClienteServiceTestCase {
         Cliente resp = service.update(id, atualizado);
 
         assertThat(resp.getCpfCnpj()).isEqualTo("98765432100");
-        assertThat(resp.getNmCliente()).isEqualTo("CLiente Atualizada");
+        assertThat(resp.getNome()).isEqualTo("CLiente Atualizada");
         verify(clienteRepository).save(existente);
     }
 

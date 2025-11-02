@@ -34,10 +34,7 @@ public class Cliente {
     @NotBlank
     @Size(max = 255)
     @Column(name = "nm_cliente")
-    private String nmCliente;
-
-    @Column(name = "ds_cliente", columnDefinition = "TEXT")
-    private String dsCliente;
+    private String nome;
 
     @NotBlank
     @Size(max = 18)
@@ -72,8 +69,7 @@ public class Cliente {
 
     public void updateFrom(Cliente cliente) {
         if (cliente == null) return;
-        this.setNmCliente(cliente.getNmCliente());
-        this.setDsCliente(cliente.getDsCliente());
+        this.setNome(cliente.getNome());
         this.setCpfCnpj(cliente.getCpfCnpj());
         this.setEmail(cliente.getEmail());
         this.setTelefone(cliente.getTelefone());

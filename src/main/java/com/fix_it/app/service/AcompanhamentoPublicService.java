@@ -22,7 +22,7 @@ public class AcompanhamentoPublicService {
 
         return new AcompanhamentoOSDTO(
                 os.getId(),
-                os.getCliente().getNmCliente(),
+                os.getCliente().getNome(),
                 os.getCliente().getCpfCnpj(),
                 os.getVeiculo().getPlaca(),
                 os.getSituacao(),

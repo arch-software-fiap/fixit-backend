@@ -91,7 +91,7 @@ public class OrdemServicoService {
         os = osRepository.save(os);
 
         log.info("Orçamento da OS ({}) enviado para aprovação do cliente {}.",
-                osId, os.getCliente().getNmCliente());
+                osId, os.getCliente().getNome());
         return os;
     }
 }
