@@ -31,6 +31,7 @@
             return http
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/public/**").permitAll()
+                            .requestMatchers("/actuator/**").permitAll()
                             .requestMatchers("/api/v1/public/**").permitAll()
                             .anyRequest().authenticated()
                     )

@@ -159,7 +159,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/50628041-5b7b-48ed-b932-e1dfd4538ec3",
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/fb81bd61-570b-472c-b981-7abeb6c543e1",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -170,7 +170,7 @@
 								"api",
 								"v1",
 								"servicos",
-								"50628041-5b7b-48ed-b932-e1dfd4538ec3"
+								"fb81bd61-570b-472c-b981-7abeb6c543e1"
 							]
 						}
 					},
@@ -289,7 +289,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/50628041-5b7b-48ed-b932-e1dfd4538ec3",
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/11b6dbca-dd9a-4b64-99e2-af07dd0aebcd",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -300,7 +300,7 @@
 								"api",
 								"v1",
 								"servicos",
-								"50628041-5b7b-48ed-b932-e1dfd4538ec3"
+								"11b6dbca-dd9a-4b64-99e2-af07dd0aebcd"
 							]
 						}
 					},
@@ -318,7 +318,7 @@
 							}
 						],
 						"url": {
-							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/50628041-5b7b-48ed-b932-e1dfd4538ec3",
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/11b6dbca-dd9a-4b64-99e2-af07dd0aebcd",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -329,7 +329,7 @@
 								"api",
 								"v1",
 								"servicos",
-								"50628041-5b7b-48ed-b932-e1dfd4538ec3"
+								"11b6dbca-dd9a-4b64-99e2-af07dd0aebcd"
 							]
 						}
 					},
