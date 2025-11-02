@@ -19,15 +19,21 @@ public class OrdemServicoItemFactory {
         return novoItem;
     }
 
-    public static ItemPecaOS criarItemPecaOS(OrdemServico os, ItemEstoque itemEstoque, ItemPecaDTO dto) {
-        ItemPecaOS novoItem = new ItemPecaOS();
-        novoItem.setOrdemServico(os);
-        novoItem.setItemEstoque(itemEstoque);
-        novoItem.setQuantidade(dto.quantidade());
-        novoItem.setValorUnitario(dto.valorUnitario());
-        novoItem.setNome(dto.nome());
-        novoItem.setDescricao(dto.descricao());
-        novoItem.setValorTotal(dto.quantidade() * dto.valorUnitario());
-        return novoItem;
+    public static ItemPecaOS criarItemPecaOS(OrdemServico os, ItemEstoque estoque, ItemPecaDTO dto) {
+        ItemPecaOS item = new ItemPecaOS();
+        item.setOrdemServico(os);
+        item.setItemEstoque(estoque);
+
+        item.setNome(estoque.getNmItemEstoque());
+        item.setValorUnitario(estoque.getVlPrecoUnitario());
+
+        item.setDescricao(dto.descricao() != null ? dto.descricao() : estoque.getDsItemEstoque());
+
+        item.setQuantidade(dto.quantidade());
+
+        long unit = estoque.getVlPrecoUnitario() == null ? 0L : estoque.getVlPrecoUnitario();
+        long total = Math.multiplyExact(unit, dto.quantidade().longValue());
+        item.setValorTotal(total);
+        return item;
     }
 }

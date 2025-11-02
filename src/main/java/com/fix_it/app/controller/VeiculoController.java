@@ -2,7 +2,6 @@ package com.fix_it.app.controller;
 
 import com.fix_it.app.common.dto.VeiculoDTO;
 import com.fix_it.app.service.VeiculoService;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/veiculos")
+@RequestMapping("/api/v1/veiculo")
 @RequiredArgsConstructor
 public class VeiculoController {
 
@@ -21,25 +20,25 @@ public class VeiculoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VeiculoDTO create(@Valid @RequestBody VeiculoDTO dto) {
-        return veiculoService.create(dto);
+    public ResponseEntity<VeiculoDTO> create(@Valid @RequestBody VeiculoDTO dto) {
+        return ResponseEntity.ok(veiculoService.create(dto));
     }
 
     @GetMapping("/{id}")
-    public VeiculoDTO findById(@PathVariable UUID id) {
-        return veiculoService.findById(id);
+    public ResponseEntity<VeiculoDTO> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(veiculoService.findById(id));
     }
 
     @GetMapping
-    public Page<VeiculoDTO> findAll(
+    public ResponseEntity<Page<VeiculoDTO>> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return veiculoService.findAll(page, size);
+        return ResponseEntity.ok(veiculoService.findAll(page, size));
     }
 
     @PutMapping("/{id}")
-    public VeiculoDTO update(@PathVariable UUID id, @Valid @RequestBody VeiculoDTO dto) {
-        return veiculoService.update(id, dto);
+    public ResponseEntity<VeiculoDTO> update(@PathVariable UUID id, @Valid @RequestBody VeiculoDTO dto) {
+        return ResponseEntity.ok(veiculoService.update(id, dto));
     }
 
     @DeleteMapping("/{id}")
@@ -48,13 +47,4 @@ public class VeiculoController {
         veiculoService.deleteById(id);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 }

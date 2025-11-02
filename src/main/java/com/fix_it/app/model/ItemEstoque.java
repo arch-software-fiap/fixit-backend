@@ -79,6 +79,9 @@ public class ItemEstoque {
     @JsonSerialize(contentUsing = Databind.IdSerializer.class)
     private List<ItemPecaOS> itensPecaOS = new ArrayList<>();
 
+    @Column(name = "st_abaixo_minimo", insertable = false, updatable = false)
+    private Boolean abaixoMinimo;
+
     @PreUpdate
     public void preUpdate() {
         dthAtualizacao = LocalDateTime.now();

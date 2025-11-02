@@ -1,10 +1,8 @@
 package com.fix_it.app.controller;
 
-import com.fix_it.app.common.dto.VeiculoDTO;
 import com.fix_it.app.model.Cliente;
 import com.fix_it.app.repository.ClienteRepository;
 import com.fix_it.app.service.ClienteService;
-import com.fix_it.app.service.VeiculoService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,32 +26,34 @@ public class ClienteController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Cliente create(@Valid @RequestBody Cliente cliente) {
-        return clienteService.create(cliente);
+    public ResponseEntity<Cliente> create(@Valid @RequestBody Cliente cliente) {
+        return ResponseEntity.ok(clienteService.create(cliente));
     }
 
     @GetMapping("/{id}")
-    public Cliente findById(@PathVariable UUID id) {
-        return clienteRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com o ID: " + id));
+    public ResponseEntity<Cliente> findById(@PathVariable UUID id) {
+        return ResponseEntity.ok(clienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com o ID: " + id)));
     }
 
-    @GetMapping("/{documento}")
-    public Cliente findByDocumento(@PathVariable String documento) {
-        return clienteRepository.findByCpfCnpj(documento)
-                .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com o documento: " + documento));
+    @GetMapping("/doc/{documento:\\d{11}|\\d{14}}")
+    public ResponseEntity<Cliente> findByDocumento(@PathVariable String documento) {
+        return ResponseEntity.ok(
+                clienteRepository.findByCpfCnpj(documento)
+                        .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado com o documento: " + documento))
+        );
     }
 
     @GetMapping
-    public Page<Cliente> findAll(
+    public ResponseEntity<Page<Cliente>> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        return clienteRepository.findAll(PageRequest.of(page, size));
+        return ResponseEntity.ok(clienteRepository.findAll(PageRequest.of(page, size)));
     }
 
     @PutMapping("/{id}")
-    public Cliente update(@PathVariable UUID id, @Valid @RequestBody Cliente cliente) {
-        return clienteService.update(id, cliente);
+    public ResponseEntity<Cliente> update(@PathVariable UUID id, @Valid @RequestBody Cliente cliente) {
+        return ResponseEntity.ok(clienteService.update(id, cliente));
     }
 
     @DeleteMapping("/{id}")
@@ -66,13 +66,4 @@ public class ClienteController {
         clienteRepository.deleteById(id);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<String> handleEntityNotFoundException(EntityNotFoundException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
-    }
 }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(path = "/api/v1/ordens-servico{osId}/item-servicos")
+@RequestMapping(path = "/api/v1/ordem-servico/{osId}/item-servico")
 @AllArgsConstructor
 public class ItemServicoOSController {
 

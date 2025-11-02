@@ -66,9 +66,11 @@ public class ItemPecaOS {
     @NotNull
     private ItemEstoque itemEstoque;
 
-//    @BatchSize(size = 20)
-//    @JsonDeserialize(contentUsing = Databind.IdDeserializer.class)
-//    @JsonSerialize(contentUsing = Databind.IdSerializer.class)
-//    @OneToMany(mappedBy = "itemPecaOS", fetch = FetchType.LAZY)
-//    private List<MovimentoEstoque> movimentosEstoque = new ArrayList<>();
+    @PrePersist @PreUpdate
+    private void calcularTotal() {
+        if (valorUnitario != null && quantidade != null) {
+            this.valorTotal = valorUnitario * quantidade;
+        }
+    }
+
 }
