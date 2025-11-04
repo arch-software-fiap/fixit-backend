@@ -28,7 +28,7 @@ public class ItemPecaOSService {
     private final ItemEstoqueRepository itemEstoqueRepository;
     private final ItemPecaOSRepository itemPecaRepository;
     private final MovimentoEstoqueRepository movimentoEstoqueRepository;
-    private final OrcamentoService orcamentoService;
+    private final OrdemServicoService ordemServicoService;
 
     /**
      * Adiciona UMA lista de itens de peça à OS:
@@ -85,7 +85,7 @@ public class ItemPecaOSService {
         itemPecaRepository.saveAll(itensOS);
         movimentoEstoqueRepository.saveAll(movimentos);
 
-        orcamentoService.recalcular(osId);
+        ordemServicoService.recalcular(osId);
         return itensOS;
     }
 
@@ -123,7 +123,7 @@ public class ItemPecaOSService {
         }
 
         itemPecaRepository.deleteById(itemId);
-        orcamentoService.recalcular(osId);
+        ordemServicoService.recalcular(osId);
     }
 
     private void validarStatusParaAlteracao(OrdemServico os) {

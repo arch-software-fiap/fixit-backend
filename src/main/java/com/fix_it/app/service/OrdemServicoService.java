@@ -5,9 +5,7 @@ import com.fix_it.app.model.Cliente;
 import com.fix_it.app.model.OrdemServico;
 import com.fix_it.app.model.Veiculo;
 import com.fix_it.app.model.enums.SituacaoOrdemServico;
-import com.fix_it.app.repository.ClienteRepository;
-import com.fix_it.app.repository.OrdemServicoRepository;
-import com.fix_it.app.repository.VeiculoRepository;
+import com.fix_it.app.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,8 @@ public class OrdemServicoService {
     private final OrdemServicoRepository osRepository;
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
-    private final OrcamentoService orcamentoService;
+    private final ItemServicoOSRepository itemServicoRepository;
+    private final ItemPecaOSRepository itemPecaRepository;
 
     @Transactional(readOnly = true)
     public Page<OrdemServico> findAll(int page, int size) {
@@ -85,7 +84,7 @@ public class OrdemServicoService {
             throw new IllegalArgumentException("Status inválido para envio de orçamento: " + os.getSituacao());
         }
 
-        os = orcamentoService.recalcular(osId);
+        os = recalcular(osId);
 
         os.setSituacao(SituacaoOrdemServico.AGUARDANDO_APROVACAO);
         os = osRepository.save(os);
@@ -93,6 +92,19 @@ public class OrdemServicoService {
         log.info("Orçamento da OS ({}) enviado para aprovação do cliente {}.",
                 osId, os.getCliente().getNome());
         return os;
+    }
+
+
+    @Transactional
+    public OrdemServico recalcular(UUID osId) {
+        OrdemServico os = osRepository.findById(osId)
+                .orElseThrow(() -> new EntityNotFoundException("OS não encontrada: " + osId));
+
+        long totalServicos = itemServicoRepository.sumValorTotalByOsId(osId);
+        long totalPecas    = itemPecaRepository.sumValorTotalByOsId(osId);
+
+        os.setValorOrcamentoTotal(totalServicos + totalPecas);
+        return osRepository.save(os);
     }
 }
 

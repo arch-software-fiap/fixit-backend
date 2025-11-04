@@ -36,8 +36,9 @@ class ItemServicoOSServiceTestCase {
     ServicoRepository servicoRepository;
     @Mock
     ItemServicoOSRepository itemServicoRepository;
+
     @Mock
-    OrcamentoService orcamentoService;
+    OrdemServicoService ordemServicoService;
 
     @InjectMocks
     ItemServicoOSService service;
@@ -88,7 +89,7 @@ class ItemServicoOSServiceTestCase {
             assertThat(resp.getServico()).isSameAs(serv);
 
             verify(itemServicoRepository).save(fakeCriado);
-            verify(orcamentoService).recalcular(osId);
+            verify(ordemServicoService).recalcular(osId);
             mocked.verify(() -> OrdemServicoItemFactory.criarItemServicoOS(existente, serv, dto));
         }
     }
@@ -105,7 +106,7 @@ class ItemServicoOSServiceTestCase {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("OS não encontrada");
 
-        verifyNoInteractions(servicoRepository, itemServicoRepository, orcamentoService);
+        verifyNoInteractions(servicoRepository, itemServicoRepository, ordemServicoService);
     }
 
     @Test
@@ -126,7 +127,7 @@ class ItemServicoOSServiceTestCase {
                 .hasMessageContaining("Serviço não encontrado");
 
         verify(itemServicoRepository, never()).save(any());
-        verify(orcamentoService, never()).recalcular(any());
+        verify(ordemServicoService, never()).recalcular(any());
     }
 
     @Test
@@ -144,7 +145,7 @@ class ItemServicoOSServiceTestCase {
 
         verifyNoInteractions(servicoRepository);
         verify(itemServicoRepository, never()).save(any());
-        verify(orcamentoService, never()).recalcular(any());
+        verify(ordemServicoService, never()).recalcular(any());
     }
 
     @Test
@@ -159,7 +160,7 @@ class ItemServicoOSServiceTestCase {
         service.remover(osId, itemId);
 
         verify(itemServicoRepository).deleteById(itemId);
-        verify(orcamentoService).recalcular(osId);
+        verify(ordemServicoService).recalcular(osId);
     }
 
     @Test
@@ -175,7 +176,7 @@ class ItemServicoOSServiceTestCase {
                 .hasMessageContaining("OS não encontrada");
 
         verify(itemServicoRepository, never()).deleteById(any());
-        verify(orcamentoService, never()).recalcular(any());
+        verify(ordemServicoService, never()).recalcular(any());
     }
 
     @Test
@@ -192,6 +193,6 @@ class ItemServicoOSServiceTestCase {
                 .hasMessageContaining("Não é possível alterar itens");
 
         verify(itemServicoRepository, never()).deleteById(any());
-        verify(orcamentoService, never()).recalcular(any());
+        verify(ordemServicoService, never()).recalcular(any());
     }
 }

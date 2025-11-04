@@ -3,7 +3,6 @@ package com.fix_it.app.controller;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fix_it.app.common.dto.OrdemServicoDTO;
 import com.fix_it.app.model.OrdemServico;
-import com.fix_it.app.service.OrcamentoService;
 import com.fix_it.app.service.OrdemServicoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +19,6 @@ import java.util.UUID;
 public class OrdemServicoController {
 
     private final OrdemServicoService ordemServicoService;
-    private final OrcamentoService orcamentoService;
 
     @GetMapping
     public ResponseEntity<Page<OrdemServico>> findAll(
@@ -59,7 +57,7 @@ public class OrdemServicoController {
 
     @PostMapping("/{id}/recalcular-orcamento")
     public ResponseEntity<OrdemServico> recalcular(@PathVariable UUID id) {
-        return ResponseEntity.ok(orcamentoService.recalcular(id));
+        return ResponseEntity.ok(ordemServicoService.recalcular(id));
     }
 
     @PutMapping("/{id}/aprovar-orcamento")
