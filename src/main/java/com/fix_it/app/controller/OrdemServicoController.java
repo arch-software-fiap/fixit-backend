@@ -70,11 +70,21 @@ public class OrdemServicoController {
 
 
     @GetMapping("/cliente/{cpfCnpj}")
-    public ResponseEntity<Page<OrdemServicoView>> findAllByCliente(
+    public ResponseEntity<Page<OrdemServico>> findAllByCliente(
             @PathVariable String cpfCnpj,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(ordemServicoService.findAllByClienteCpfCnpj(cpfCnpj, page, size));
+    }
+
+    @GetMapping("/cliente/{cpfCnpj}/{id}")
+    public ResponseEntity<OrdemServicoView> findAllByClienteDetalhado(
+            @PathVariable String cpfCnpj,
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        var osd =  ordemServicoService.findByClienteCpfCnpjDetalhado(cpfCnpj,id).orElseThrow();
+        return ResponseEntity.ok(osd);
     }
 
 }

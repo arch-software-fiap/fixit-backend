@@ -14,6 +14,8 @@ import java.util.UUID;
 @Repository
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, UUID> {
 
+    Page<OrdemServico> findAllByCliente_CpfCnpj(String clienteCpfCnpj, Pageable pageable);
+
 
     @Query("""
               select os from OrdemServico os

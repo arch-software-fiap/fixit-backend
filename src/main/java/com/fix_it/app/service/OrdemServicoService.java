@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -98,8 +99,12 @@ public class OrdemServicoService {
         return os;
     }
 
-    public Page<OrdemServicoView> findAllByClienteCpfCnpj(String cpfCnpj, int page, int size) {
-        return ordemServicoViewRepository.findAllByCpfCnpj(cpfCnpj, PageRequest.of(page, size));
+    public Page<OrdemServico> findAllByClienteCpfCnpj(String cpfCnpj, int page, int size) {
+        return osRepository.findAllByCliente_CpfCnpj(cpfCnpj, PageRequest.of(page, size));
+    }
+
+    public Optional<OrdemServicoView> findByClienteCpfCnpjDetalhado(String cpfCnpj, UUID id) {
+        return ordemServicoViewRepository.findByCpfCnpjAndId(cpfCnpj, id);
     }
 }
 
