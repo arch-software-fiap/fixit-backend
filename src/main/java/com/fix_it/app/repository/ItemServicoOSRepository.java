@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -23,5 +24,10 @@ public interface ItemServicoOSRepository extends JpaRepository<ItemServicoOS, UU
                where i.ordemServico.id = :osId
             """)
     long sumValorTotalByOsId(@Param("osId") UUID osId);
+
+
+    List<ItemServicoOS> findAllByOrdemServico_Id(UUID osId);
+
+    Optional<ItemServicoOS> findByServico_Id(UUID servicoId);
 }
 

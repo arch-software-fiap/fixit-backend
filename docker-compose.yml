@@ -42,6 +42,7 @@ services:
       networks:
         - fixit-backend-network
 
+  # AUTH
   keycloak-fixit-backend:
     image: quay.io/keycloak/keycloak:23.0
     container_name: keycloak-fixit-backend
@@ -66,6 +67,17 @@ services:
       start_period: 30s
     networks:
       - fixit-backend-network
+
+  # SONAR
+  sonarqube-fixit-backend:
+    image: sonarqube:lts-community
+    container_name: sonarqube-fixit-backend
+    ports:
+      - "9000:9000"
+    networks:
+      - fixit-backend-network
+    restart: unless-stopped
+
 networks:
   fixit-backend-network:
     name: fixit-backend-network

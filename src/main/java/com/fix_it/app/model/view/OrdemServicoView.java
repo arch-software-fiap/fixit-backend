@@ -1,6 +1,5 @@
 package com.fix_it.app.model.view;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fix_it.app.common.converter.JsonListConverter;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -25,5 +24,9 @@ public class OrdemServicoView {
 
     @Column(name = "itens_servico", columnDefinition = "json")
     @Convert(converter = JsonListConverter.class)
-    private List<ItemServicoView> itensServico;
+    private List<ItemServicoView> servicos;
+
+    @Column(name = "itens_peca", columnDefinition = "json")
+    @Convert(converter = JsonListConverter.class)
+    private List<ItemPecaView> pecas;
 }

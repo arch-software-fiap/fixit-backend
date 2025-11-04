@@ -67,7 +67,7 @@ class ItemServicoOSServiceTestCase {
         Servico serv = servico(servicoId);
 
         ItemServicoDTO dto = mock(ItemServicoDTO.class);
-        when(dto.id()).thenReturn(servicoId);
+        when(dto.seq_servico()).thenReturn(servicoId);
 
         when(osRepository.findById(osId)).thenReturn(Optional.of(existente));
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.of(serv));
@@ -117,7 +117,7 @@ class ItemServicoOSServiceTestCase {
         OrdemServico existente = os(osId, SituacaoOrdemServico.RECEBIDA);
 
         ItemServicoDTO dto = mock(ItemServicoDTO.class);
-        when(dto.id()).thenReturn(servicoId);
+        when(dto.seq_servico()).thenReturn(servicoId);
 
         when(osRepository.findById(osId)).thenReturn(Optional.of(existente));
         when(servicoRepository.findById(servicoId)).thenReturn(Optional.empty());

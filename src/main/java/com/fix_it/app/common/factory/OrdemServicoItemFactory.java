@@ -19,6 +19,13 @@ public class OrdemServicoItemFactory {
         return novoItem;
     }
 
+    public static ItemServicoOS atualizaItemServicoOS(ItemServicoOS i, Servico servico, ItemServicoDTO dto){
+        i.setQuantidadeHoras(i.getQuantidadeHoras() + dto.quantidadeHoras());
+        i.setValorTotal(i.getValorTotal() + servico.getVlPrecoBase() * dto.quantidadeHoras());
+        return i;
+    }
+
+
     public static ItemPecaOS criarItemPecaOS(OrdemServico os, ItemEstoque estoque, ItemPecaDTO dto) {
         ItemPecaOS item = new ItemPecaOS();
         item.setOrdemServico(os);

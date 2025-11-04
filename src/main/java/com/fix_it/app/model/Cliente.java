@@ -1,6 +1,5 @@
 package com.fix_it.app.model;
 
-import com.fix_it.app.common.dto.VeiculoDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

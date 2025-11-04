@@ -2,7 +2,6 @@ package com.fix_it.app.service;
 
 import com.fix_it.app.model.Cliente;
 import com.fix_it.app.repository.ClienteRepository;
-import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

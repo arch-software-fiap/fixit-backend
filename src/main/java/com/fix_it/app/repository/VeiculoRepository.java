@@ -14,6 +14,5 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, UUID> {
 
     boolean existsByPlaca(String placa);
 
-//    List<Veiculo> findByClienteSqCliente(Long sqCliente);
 }
 

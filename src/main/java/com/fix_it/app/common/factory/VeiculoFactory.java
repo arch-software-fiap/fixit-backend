@@ -35,7 +35,6 @@ public final class VeiculoFactory {
         v.setCliente(cliente);
     }
 
-    //FIXME: verificar onde deixar esse utilitário
     private static String normalizePlaca(String placa) {
         return placa == null ? null : placa.replaceAll("\\s+", "").toUpperCase();
     }
