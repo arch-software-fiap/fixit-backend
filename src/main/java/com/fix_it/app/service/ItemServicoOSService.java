@@ -24,7 +24,7 @@ public class ItemServicoOSService {
     private final OrdemServicoRepository osRepository;
     private final ServicoRepository servicoRepository;
     private final ItemServicoOSRepository itemServicoRepository;
-    private final OrcamentoService orcamentoService;
+    private final OrdemServicoService ordemServicoService;
 
     @Transactional
     public ItemServicoOS adicionar(UUID osId, ItemServicoDTO dto) {
@@ -52,7 +52,7 @@ public class ItemServicoOSService {
         ItemServicoOS novoItem = OrdemServicoItemFactory.criarItemServicoOS(os, servico, dto);
         itemServicoRepository.save(novoItem);
 
-        orcamentoService.recalcular(osId);
+        ordemServicoService.recalcular(osId);
         return novoItem;
     }
 
@@ -64,7 +64,7 @@ public class ItemServicoOSService {
         validarStatusParaAlteracao(os);
 
         itemServicoRepository.deleteById(itemId);
-        orcamentoService.recalcular(osId);
+        ordemServicoService.recalcular(osId);
     }
 
     private void validarStatusParaAlteracao(OrdemServico os) {

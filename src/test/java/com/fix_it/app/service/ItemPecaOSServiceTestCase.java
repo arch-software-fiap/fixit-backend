@@ -45,7 +45,7 @@ class ItemPecaOSServiceTestCase {
     @Mock
     MovimentoEstoqueRepository movimentoEstoqueRepository;
     @Mock
-    OrcamentoService orcamentoService;
+    OrdemServicoService ordemServicoService;
 
     @InjectMocks
     ItemPecaOSService service;
@@ -87,7 +87,7 @@ class ItemPecaOSServiceTestCase {
         UUID osId = UUID.randomUUID();
         var resp = service.adicionarLista(osId, List.of());
         assertThat(resp).isEmpty();
-        verifyNoInteractions(osRepository, itemEstoqueRepository, itemPecaRepository, movimentoEstoqueRepository, orcamentoService);
+        verifyNoInteractions(osRepository, itemEstoqueRepository, itemPecaRepository, movimentoEstoqueRepository, ordemServicoService);
     }
 
     @Test
@@ -96,7 +96,7 @@ class ItemPecaOSServiceTestCase {
         UUID osId = UUID.randomUUID();
         var resp = service.adicionarLista(osId, null);
         assertThat(resp).isEmpty();
-        verifyNoInteractions(osRepository, itemEstoqueRepository, itemPecaRepository, movimentoEstoqueRepository, orcamentoService);
+        verifyNoInteractions(osRepository, itemEstoqueRepository, itemPecaRepository, movimentoEstoqueRepository, ordemServicoService);
     }
 
     @Test
@@ -149,7 +149,7 @@ class ItemPecaOSServiceTestCase {
                         assertThat(m.getPeca()).isIn(pecaA, pecaB);
                     });
 
-            verify(orcamentoService).recalcular(osId);
+            verify(ordemServicoService).recalcular(osId);
             mocked.verify(() -> OrdemServicoItemFactory.criarItemPecaOS(existente, ea, dtoA));
             mocked.verify(() -> OrdemServicoItemFactory.criarItemPecaOS(existente, eb, dtoB));
         }
@@ -181,7 +181,7 @@ class ItemPecaOSServiceTestCase {
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("Não é possível alterar itens");
 
-        verifyNoInteractions(itemEstoqueRepository, itemPecaRepository, movimentoEstoqueRepository, orcamentoService);
+        verifyNoInteractions(itemEstoqueRepository, itemPecaRepository, movimentoEstoqueRepository, ordemServicoService);
     }
 
 
@@ -257,7 +257,7 @@ class ItemPecaOSServiceTestCase {
 
         verify(itemPecaRepository, never()).saveAll(anyList());
         verify(movimentoEstoqueRepository, never()).saveAll(anyList());
-        verify(orcamentoService, never()).recalcular(any());
+        verify(ordemServicoService, never()).recalcular(any());
     }
 
     @Test
@@ -286,7 +286,7 @@ class ItemPecaOSServiceTestCase {
 
             assertThat(resp).isNotNull();
             assertThat(resp.getItemEstoque()).isEqualTo(est);
-            verify(orcamentoService).recalcular(osId);
+            verify(ordemServicoService).recalcular(osId);
         }
     }
 
@@ -318,7 +318,7 @@ class ItemPecaOSServiceTestCase {
         assertThat(capMov.getValue().getPeca()).isEqualTo(item);
 
         verify(itemPecaRepository).deleteById(itemId);
-        verify(orcamentoService).recalcular(osId);
+        verify(ordemServicoService).recalcular(osId);
     }
 
     @Test
@@ -342,7 +342,7 @@ class ItemPecaOSServiceTestCase {
         verify(itemEstoqueRepository, never()).estornarEstoque(any(), anyInt());
         verify(movimentoEstoqueRepository, never()).save(any(MovimentoEstoque.class));
         verify(itemPecaRepository).deleteById(itemId);
-        verify(orcamentoService).recalcular(osId);
+        verify(ordemServicoService).recalcular(osId);
     }
 
     @Test
@@ -357,7 +357,7 @@ class ItemPecaOSServiceTestCase {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("OS não encontrada");
 
-        verifyNoInteractions(itemPecaRepository, itemEstoqueRepository, movimentoEstoqueRepository, orcamentoService);
+        verifyNoInteractions(itemPecaRepository, itemEstoqueRepository, movimentoEstoqueRepository, ordemServicoService);
     }
 
     @Test
@@ -391,6 +391,6 @@ class ItemPecaOSServiceTestCase {
         verify(itemPecaRepository, never()).findById(any());
         verify(itemEstoqueRepository, never()).estornarEstoque(any(), anyInt());
         verify(movimentoEstoqueRepository, never()).save(any());
-        verify(orcamentoService, never()).recalcular(any());
+        verify(ordemServicoService, never()).recalcular(any());
     }
 }
