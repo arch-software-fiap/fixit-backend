@@ -1,7 +1,7 @@
 package com.fix_it.app.service;
 
 import com.fix_it.app.common.dto.OrdemServicoDTO;
-import com.fix_it.app.common.view.OrdemServicoView;
+import com.fix_it.app.model.view.OrdemServicoView;
 import com.fix_it.app.model.Cliente;
 import com.fix_it.app.model.OrdemServico;
 import com.fix_it.app.model.Veiculo;

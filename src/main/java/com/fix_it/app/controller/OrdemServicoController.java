@@ -2,7 +2,7 @@ package com.fix_it.app.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fix_it.app.common.dto.OrdemServicoDTO;
-import com.fix_it.app.common.view.OrdemServicoView;
+import com.fix_it.app.model.view.OrdemServicoView;
 import com.fix_it.app.model.OrdemServico;
 import com.fix_it.app.service.OrcamentoService;
 import com.fix_it.app.service.OrdemServicoService;

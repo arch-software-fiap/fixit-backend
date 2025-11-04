@@ -1,6 +1,6 @@
 package com.fix_it.app.repository.view;
 
-import com.fix_it.app.common.view.OrdemServicoView;
+import com.fix_it.app.model.view.OrdemServicoView;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
