@@ -10,10 +10,12 @@ import java.util.UUID;
 @JsonNaming
 public record ItemServicoDTO(
         @JsonProperty("id")
-        @NotNull
         UUID id,
         @NotNull
         @JsonProperty("quantidade_horas")
         @PositiveOrZero
-        Integer quantidadeHoras) {
+        Integer quantidadeHoras,
+        @NotNull
+        @JsonProperty("servico_id")
+        UUID seq_servico) {
 }

@@ -7,15 +7,23 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.UUID;
 
-public record OrdemServicoDTO(@JsonView(Views.Create.class) @JsonProperty("cliente_id") @NotNull UUID clienteId,
-                              @JsonView(Views.Create.class) @JsonProperty("veiculo_id") @NotNull UUID veiculoId,
-                              @JsonView({Views.Create.class, Views.Update.class}) @NotBlank @JsonProperty("descricao") String descricao) {
+public record OrdemServicoDTO(
 
+        @JsonView({Views.Create.class, Views.Update.class})
+        @JsonProperty("cliente_id")
+        @NotNull UUID clienteId,
+
+        @JsonView({Views.Create.class, Views.Update.class})
+        @JsonProperty("veiculo_id")
+        @NotNull UUID veiculoId,
+
+        @JsonView({Views.Create.class, Views.Update.class})
+        @NotBlank
+        @JsonProperty("descricao")
+        String descricao
+) {
     public static class Views {
-        public interface Create {
-        }
-
-        public interface Update {
-        }
+        public interface Create {}
+        public interface Update {}
     }
 }

@@ -1,6 +1,7 @@
 package com.fix_it.app.service;
 
 import com.fix_it.app.common.dto.OrdemServicoDTO;
+import com.fix_it.app.common.view.OrdemServicoView;
 import com.fix_it.app.model.Cliente;
 import com.fix_it.app.model.OrdemServico;
 import com.fix_it.app.model.Veiculo;
@@ -8,6 +9,7 @@ import com.fix_it.app.model.enums.SituacaoOrdemServico;
 import com.fix_it.app.repository.ClienteRepository;
 import com.fix_it.app.repository.OrdemServicoRepository;
 import com.fix_it.app.repository.VeiculoRepository;
+import com.fix_it.app.repository.view.OrdemServicoViewRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +29,7 @@ public class OrdemServicoService {
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
     private final OrcamentoService orcamentoService;
+    private final OrdemServicoViewRepository ordemServicoViewRepository;
 
     @Transactional(readOnly = true)
     public Page<OrdemServico> findAll(int page, int size) {
@@ -93,6 +96,10 @@ public class OrdemServicoService {
         log.info("Orçamento da OS ({}) enviado para aprovação do cliente {}.",
                 osId, os.getCliente().getNome());
         return os;
+    }
+
+    public Page<OrdemServicoView> findAllByClienteCpfCnpj(String cpfCnpj, int page, int size) {
+        return ordemServicoViewRepository.findAllByCpfCnpj(cpfCnpj, PageRequest.of(page, size));
     }
 }
 

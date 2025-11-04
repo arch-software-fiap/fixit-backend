@@ -2,6 +2,7 @@ package com.fix_it.app.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fix_it.app.common.dto.OrdemServicoDTO;
+import com.fix_it.app.common.view.OrdemServicoView;
 import com.fix_it.app.model.OrdemServico;
 import com.fix_it.app.service.OrcamentoService;
 import com.fix_it.app.service.OrdemServicoService;
@@ -66,4 +67,14 @@ public class OrdemServicoController {
     public OrdemServico enviarOrcamentoParaAprovacao(@PathVariable UUID id) {
         return ordemServicoService.enviarOrcamentoParaAprovacao(id);
     }
+
+
+    @GetMapping("/cliente/{cpfCnpj}")
+    public ResponseEntity<Page<OrdemServicoView>> findAllByCliente(
+            @PathVariable String cpfCnpj,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(ordemServicoService.findAllByClienteCpfCnpj(cpfCnpj, page, size));
+    }
+
 }

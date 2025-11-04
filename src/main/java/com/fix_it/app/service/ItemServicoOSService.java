@@ -13,6 +13,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.util.UUID;
 
@@ -32,8 +33,21 @@ public class ItemServicoOSService {
 
         validarStatusParaAlteracao(os);
 
-        Servico servico = servicoRepository.findById(dto.id())
+        Servico servico = servicoRepository.findById(dto.seq_servico())
                 .orElseThrow(() -> new EntityNotFoundException("Serviço não encontrado"));
+
+        /* Pode repetir o mesmo servico ou deve-se atualizar o numero de horas ?*/
+
+//        var idsItemServico = itemServicoRepository
+//                .findByServico(servico)
+//                .stream()
+//                .map(ItemServicoOS -> {
+//                    return ItemServicoOS.getServico().getId();
+//                }).toList();
+//
+//        if (idsItemServico.contains(dto.seq_servico())) {
+//            throw new IllegalArgumentException("Item já vinculado!");
+//        }
 
         ItemServicoOS novoItem = OrdemServicoItemFactory.criarItemServicoOS(os, servico, dto);
         itemServicoRepository.save(novoItem);
