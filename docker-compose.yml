@@ -1,0 +1,84 @@
+services:
+  # APPLICICATION
+  fixit-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fixit-backend
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-fixit-backend:5432/fixitbackend
+      - SPRING_DATASOURCE_USERNAME=fixitbackend
+      - SPRING_DATASOURCE_PASSWORD=fixitbackend
+      - KEYCLOAK_SERVER_URL=http://keycloak-fixit-backend:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-fixit-backend:
+        condition: service_healthy
+      keycloak-fixit-backend:
+        condition: service_healthy
+    networks:
+      - fixit-backend-network
+    restart: unless-stopped
+
+  # DATABASE
+  postgres-fixit-backend:
+      image: postgres:18
+      container_name: postgres-fixit-backend
+      environment:
+        - POSTGRES_USER=${POSTGRES_USER:-fixitbackend}
+        - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-fixitbackend}
+        - POSTGRES_DB=${POSTGRES_DB:-fixitbackend}
+      ports:
+        - "5432:5432"
+      volumes:
+        - .docker/postgres/:/docker-entrypoint-initdb.d
+      healthcheck:
+        test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fixitbackend} && psql -U ${POSTGRES_USER:-fixitbackend} -d ${POSTGRES_DB:-fixitbackend} -c 'SELECT 1' > /dev/null 2>&1" ]
+        interval: 30s
+        timeout: 5s
+        retries: 5
+        start_period: 10s
+      networks:
+        - fixit-backend-network
+
+  # AUTH
+  keycloak-fixit-backend:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak-fixit-backend
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: true
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+    command:
+      - start-dev
+      - --import-realm
+    volumes:
+      - .docker/keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+    ports:
+      - "8085:8080"
+    healthcheck:
+      test: [ "CMD-SHELL", "timeout 1 bash -c '</dev/tcp/localhost/8080' || exit 1" ]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 30s
+    networks:
+      - fixit-backend-network
+
+  # SONAR
+  sonarqube-fixit-backend:
+    image: sonarqube:lts-community
+    container_name: sonarqube-fixit-backend
+    ports:
+      - "9000:9000"
+    networks:
+      - fixit-backend-network
+    restart: unless-stopped
+
+networks:
+  fixit-backend-network:
+    name: fixit-backend-network
+    driver: bridge

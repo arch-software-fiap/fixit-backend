@@ -1,0 +1,1560 @@
+{
+	"info": {
+		"_postman_id": "ae7988e6-fd90-4ff6-a3ee-cd9aea993a21",
+		"name": "fixit_backend",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25903983"
+	},
+	"item": [
+		{
+			"name": "servico",
+			"item": [
+				{
+					"name": "findAll",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"followAuthorizationHeader": false
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"servicos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/fb81bd61-570b-472c-b981-7abeb6c543e1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"servicos",
+								"fb81bd61-570b-472c-b981-7abeb6c543e1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Instalação Elétrica\",\n  \"descricao\": \"Serviço completo de instalação elétrica residencial, incluindo fiação, tomadas e interruptores\",\n  \"precoBase\": 15000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"servicos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Instalação Elétrica 2\",\n  \"precoBase\": 20000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/11b6dbca-dd9a-4b64-99e2-af07dd0aebcd",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"servicos",
+								"11b6dbca-dd9a-4b64-99e2-af07dd0aebcd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/servicos/11b6dbca-dd9a-4b64-99e2-af07dd0aebcd",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"servicos",
+								"11b6dbca-dd9a-4b64-99e2-af07dd0aebcd"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"packages": {},
+						"requests": {},
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "os",
+			"item": [
+				{
+					"name": "findAll",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/ordem-servico",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"ordem-servico"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "findAllByCliente",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/ordem-servico/cliente/123.456.789-00",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"ordem-servico",
+								"cliente",
+								"123.456.789-00"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cliente_id\": \"956969db-f1e5-4a6b-93d0-499773b6aa4f\",\n  \"veiculo_id\": \"1d7d33cd-2a8b-49b4-887e-e142fa2540dc\",\n  \"descricao\": \"Troca de óleo, limpeza de bicos e revisão do sistema elétrico.\"\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/ordem-servico",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"ordem-servico"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"cliente_id\": \"956969db-f1e5-4a6b-93d0-499773b6aa4f\",\n  \"veiculo_id\": \"1d7d33cd-2a8b-49b4-887e-e142fa2540dc\",\n  \"descricao\": \"Troca de ólte, limpeza de bicos e revisão dado sistema elétricsdfo.\"\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/ordem-servico/19c991f8-c5f5-4dbb-819a-b94f075e8129",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"ordem-servico",
+								"19c991f8-c5f5-4dbb-819a-b94f075e8129"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "cliente",
+			"item": [
+				{
+					"name": "findAll",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/cliente",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"cliente"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"João da Silva\",\n  \"cpfCnpj\": \"123.456.789-00\",\n  \"email\": \"joao.silva@example.com\",\n  \"telefone\": \"(91) 99999-9999\",\n  \"dtCadastro\": \"2025-11-03\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/cliente",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"cliente"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "veiculo",
+			"item": [
+				{
+					"name": "findAll",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/veiculo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"veiculo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Gol 1.6\",\n  \"placa\": \"ABC-1234\",\n  \"marca\": \"Volkswagen\",\n  \"modelo\": \"Gol\",\n  \"ano\": 2015,\n  \"descricao\": \"Veículo em bom estado, revisado recentemente.\",\n  \"clienteId\": \"956969db-f1e5-4a6b-93d0-499773b6aa4f\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/veiculo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"veiculo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "item_servico_os",
+			"item": [
+				{
+					"name": "add",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const keycloakUrl = 'http://localhost:8085/realms/fixit/protocol/openid-connect/token';",
+									"const clientId = 'fixit_backend';",
+									"const username = 'user';",
+									"const password = '123';",
+									"",
+									"// ==== FUNÇÃO PRINCIPAL ====",
+									"pm.sendRequest({",
+									"    url: keycloakUrl,",
+									"    method: 'POST',",
+									"    header: {",
+									"        'Content-Type': 'application/x-www-form-urlencoded'",
+									"    },",
+									"    body: {",
+									"        mode: 'urlencoded',",
+									"        urlencoded: [",
+									"            { key: 'client_id', value: clientId },",
+									"            { key: 'grant_type', value: 'password' },",
+									"            { key: 'username', value: username },",
+									"            { key: 'password', value: password }",
+									"        ]",
+									"    }",
+									"}, function (err, res) {",
+									"    if (err) {",
+									"        console.error('❌ Erro ao obter token do Keycloak:', err);",
+									"    } else {",
+									"        if (res.code !== 200) {",
+									"            console.error('⚠️ Erro HTTP ao buscar token:', res.code, res.text());",
+									"        } else {",
+									"            const json = res.json();",
+									"            const token = json.access_token;",
+									"",
+									"            if (token) {",
+									"                // Armazena o token como variável de ambiente",
+									"                pm.environment.set('access_token', token);",
+									"                pm.request.headers.upsert({ key: 'Authorization', value: `Bearer ${token}` });",
+									"                console.log('✅ Token armazenado com sucesso!');",
+									"            } else {",
+									"                console.error('❌ Token não encontrado na resposta:', json);",
+									"            }",
+									"        }",
+									"    }",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"servico_id\": \"ad7f7908-da8c-4961-8d87-06be72297f9a\",\n  \"quantidade_horas\": 4\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/fixit-backend/api/v1/ordem-servico/19c991f8-c5f5-4dbb-819a-b94f075e8129/item-servico",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"fixit-backend",
+								"api",
+								"v1",
+								"ordem-servico",
+								"19c991f8-c5f5-4dbb-819a-b94f075e8129",
+								"item-servico"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

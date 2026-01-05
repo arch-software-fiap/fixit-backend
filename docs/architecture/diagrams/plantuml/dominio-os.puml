@@ -1,0 +1,104 @@
+@startuml diagram
+page 4x4
+skinparam defaultFontName Trebuchet MS
+left to right direction
+
+package "com.fix_it" <<Frame>> {
+
+    class Cliente {
+        - sq_cliente: Long {id}
+        - nm_cliente: String
+        - ds_cliente: String
+        - cpf_cnpj: String
+        - email: String
+        - telefone: String
+        - dt_cadastro: OSLocalDate
+        - dth_atualizacao: OSLocalDateTime
+        -- tagged values --
+        <b>@table.name</b>: cliente
+        <b>@rule.unique</b>: cpf_cnpj
+        <b>@sequence.name</b>: sq_cliente
+    }
+
+    class Veiculo {
+        - sq_veiculo: Long {id}
+        - nm_veiculo: String
+        - ds_veiculo: String
+        - placa: String
+        - marca: String
+        - modelo: String
+        - ano: Integer
+        - dth_cadastro: OSLocalDateTime
+        -- tagged values --
+        <b>@table.name</b>: veiculo
+        <b>@rule.unique</b>: placa
+        <b>@sequence.name</b>: sq_veiculo
+    }
+
+    class OrdemServico {
+        - sq_os: Long {id}
+        - nm_status: String
+        - dth_abertura: OSLocalDateTime
+        - dth_fechamento: OSLocalDateTime
+        - ds_os: String
+        - vl_orcamento_total: Long
+        - vl_total_final: Long
+        -- tagged values --
+        <b>@table.name</b>: ordem_servico
+        <b>@status.allowed</b>: RECEBIDA|EM_DIAGNOSTICO|AGUARDANDO_APROVACAO|EM_EXECUCAO|FINALIZADA|ENTREGUE
+        <b>@sequence.name</b>: sq_os
+    }
+
+    class Orcamento {
+        - sq_orcamento: Long {id}
+        - dth_geracao: OSLocalDateTime
+        - vl_total: Long
+        - nm_status: String
+        -- tagged values --
+        <b>@table.name</b>: orcamento
+        <b>@status.allowed</b>: GERADO|ENVIADO|APROVADO|REJEITADO
+        <b>@sequence.name</b>: sq_orcamento
+    }
+
+    class Servico {
+        - sq_servico: Long {id}
+        - nm_servico: String
+        - ds_servico: String
+        - vl_preco_base: Long
+        - dth_atualizacao: OSLocalDateTime
+        -- tagged values --
+        <b>@table.name</b>: servico
+        <b>@sequence.name</b>: sq_servico
+    }
+
+    class ItemServicoOS {
+        - sq_os_item_servico: Long {id}
+        - qt_horas: Integer
+        - vl_preco_unitario: Long
+        - vl_preco_total: Long
+        -- tagged values --
+        <b>@table.name</b>: sq_os_servico
+        <b>@sequence.name</b>: sq_os_servico
+    }
+
+    class ItemPecaOS {
+        - sq_item_peca_os: Long {id}
+        - qt_itens: Integer
+        - vl_preco_unitario: Long
+        - vl_preco_total: Long
+        -- tagged values --
+        <b>@table.name</b>: os_item
+        <b>@sequence.name</b>: sq_item_peca_os
+    }
+}
+
+' ===== RELACIONAMENTOS =====
+Veiculo        "0..*" --> "1" Cliente
+OrdemServico   "0..*" --> "1" Cliente
+OrdemServico   "0..*" --> "1" Veiculo
+Orcamento      "1"    --> "1" OrdemServico
+ItemServicoOS  "0..*" --> "1" OrdemServico
+ItemServicoOS  "0..*" --> "1" Servico
+ItemPecaOS     "0..*" --> "1" OrdemServico
+
+@enduml
