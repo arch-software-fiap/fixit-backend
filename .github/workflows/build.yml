@@ -9,13 +9,13 @@ on:
 
 env:
   JAVA_VERSION: '21'
-  ARTIFACT_NAME: '${{ github.event.repository.name }}-${{ github.sha }}'
+  ARTIFACT_NAME: 'app-${{ github.event.repository.name }}-${{ github.run_number }}'
 
 jobs:
 
-  test:
+  tests:
     name: Tests
-    runs-on: ubuntu-22.04
+    runs-on: ${{ vars.RUNS_ON }}
 
     steps:
       - uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
 
   package:
     name: Package
-    runs-on: ubuntu-22.04
-    needs: [ test ]
+    runs-on: ${{ vars.RUNS_ON }}
+    needs: [ tests ]
 
     steps:
       - uses: actions/checkout@v4
@@ -44,31 +44,42 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Packaging
+      - name: Packaging application
         run: mvn package -DskipTests
 
-      - name: Upload do artefato JAR
+      - name: Upload artifact jar
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: target/*.jar
           retention-days: 3
 
-  build:
-    name: Build docker image
-    runs-on: ubuntu-22.04
+  containerize:
+    name: containerize
+    runs-on: ${{ vars.RUNS_ON }}
     needs: [ package ]
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-      - name: Checkout codebase
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download do artefato JAR
+      - name: Download artifact jar
         uses: actions/download-artifact@v4
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: target
 
-      - name: Build da imagem Docker
-        run: docker build -t fixit-backend:latest .
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build image
+        run: docker build -t ghcr.io/${{ github.repository }}:latest .
+
+      - name: Publish image
+        run: docker push ghcr.io/${{ github.repository }}:latest
