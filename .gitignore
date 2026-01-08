@@ -32,6 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 
-docs/architecture/diagrams/png/
-docs/architecture/diagrams/svg/
+.docs/architecture/diagrams/png/
+.docs/architecture/diagrams/svg/
 
