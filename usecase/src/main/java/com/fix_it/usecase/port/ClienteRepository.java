@@ -17,4 +17,6 @@ public interface ClienteRepository {
     boolean existePorCpfCnpj(String cpfCnpj);
 
     List<Cliente> listarTodos();
+
+    void removerPorId(UUID id);
 }

@@ -1,7 +1,7 @@
 package com.fix_it.config;
 
-import com.fix_it.application.usecasesimpl.cliente.AtualizarClienteUseCaseImpl;
-import com.fix_it.application.usecasesimpl.cliente.CriarClienteUseCaseImpl;
+import com.fix_it.application.usecasesimpl.AtualizarClienteUseCaseImpl;
+import com.fix_it.application.usecasesimpl.CriarClienteUseCaseImpl;
 import com.fix_it.usecase.cliente.AtualizarClienteUseCase;
 import com.fix_it.usecase.cliente.CriarClienteUseCase;
 import com.fix_it.usecase.port.ClienteRepository;

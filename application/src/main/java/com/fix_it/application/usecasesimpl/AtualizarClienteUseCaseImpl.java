@@ -1,8 +1,9 @@
-package com.fix_it.application.usecasesimpl.cliente;
+package com.fix_it.application.usecasesimpl;
 
 import com.fix_it.core.domain.entity.Cliente;
 import com.fix_it.core.domain.exception.ClienteNaoEncontradoException;
 import com.fix_it.usecase.cliente.AtualizarClienteUseCase;
+import com.fix_it.usecase.cliente.input.AtualizarClienteInput;
 import com.fix_it.usecase.port.ClienteRepository;
 import com.fix_it.usecase.port.DocumentoValidator;
 
@@ -21,7 +22,15 @@ public class AtualizarClienteUseCaseImpl implements AtualizarClienteUseCase {
     }
 
     @Override
-    public Cliente execute(UUID id, String nome, String cpfCnpj, String email, String telefone) {
+    public Cliente execute(AtualizarClienteInput atualizarClienteInput) {
+
+        UUID id = atualizarClienteInput.id();
+
+        String cpfCnpj = atualizarClienteInput.cpfCnpj();
+        String nome = atualizarClienteInput.nome();
+        String email = atualizarClienteInput.email();
+        String telefone = atualizarClienteInput.telefone();
+
         Cliente existente = clienteRepository.buscarPorId(id)
                 .orElseThrow(() -> new ClienteNaoEncontradoException(id));
 

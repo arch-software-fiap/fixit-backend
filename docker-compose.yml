@@ -1,25 +1,25 @@
 services:
   # APPLICICATION
-  fixit-backend:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: fixit-backend
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-fixit-backend:5432/fixitbackend
-      - SPRING_DATASOURCE_USERNAME=fixitbackend
-      - SPRING_DATASOURCE_PASSWORD=fixitbackend
-      - KEYCLOAK_SERVER_URL=http://keycloak-fixit-backend:8080
-    ports:
-      - "8080:8080"
-    depends_on:
-      postgres-fixit-backend:
-        condition: service_healthy
-      keycloak-fixit-backend:
-        condition: service_healthy
-    networks:
-      - fixit-backend-network
-    restart: unless-stopped
+#  fixit-backend:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: fixit-backend
+#    environment:
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-fixit-backend:5432/fixitbackend
+#      - SPRING_DATASOURCE_USERNAME=fixitbackend
+#      - SPRING_DATASOURCE_PASSWORD=fixitbackend
+#      - KEYCLOAK_SERVER_URL=http://keycloak-fixit-backend:8080
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      postgres-fixit-backend:
+#        condition: service_healthy
+#      keycloak-fixit-backend:
+#        condition: service_healthy
+#    networks:
+#      - fixit-backend-network
+#    restart: unless-stopped
 
   # DATABASE
   postgres-fixit-backend:
