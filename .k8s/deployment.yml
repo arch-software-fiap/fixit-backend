@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ${project.artifactId}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ${project.artifactId}
+  template:
+    metadata:
+      labels:
+        app: ${project.artifactId}
+    spec:
+      containers:
+        - name: ${project.artifactId}
+          image: ghcr.io/arch-software-fiap/fixit-backend:latest
+          ports:
+            - containerPort: 8080
+      imagePullSecrets:
+        -
