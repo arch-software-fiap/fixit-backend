@@ -17,6 +17,12 @@ spec:
           image: ghcr.io/arch-software-fiap/fixit-backend:latest
           ports:
             - containerPort: 8080
+          resources:
+            requests:
+              cpu: 125m
+              memory: 512Mi
+            limits:
+              memory: 1024Mi
       imagePullSecrets:
         - name: ghcr-secret
 
