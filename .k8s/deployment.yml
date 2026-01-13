@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ${project.artifactId}
+  name: fixit-backend-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ${project.artifactId}
+      app: fixit-backend-service
   template:
     metadata:
       labels:
-        app: ${project.artifactId}
+        app: fixit-backend-service
     spec:
       containers:
         - name: ${project.artifactId}
@@ -18,4 +18,5 @@ spec:
           ports:
             - containerPort: 8080
       imagePullSecrets:
+        - name: ghcr-secret
 
