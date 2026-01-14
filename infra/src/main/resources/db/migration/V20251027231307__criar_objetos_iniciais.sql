@@ -1,4 +1,4 @@
-create table clienteEntity (
+create table cliente (
                          dt_cadastro date,
                          dth_atualizacao timestamp(6),
                          sq_cliente UUID not null,
