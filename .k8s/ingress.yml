@@ -2,6 +2,18 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ${project.artifactId}-ingress
-  annotations:
+spec:
+  rules:
+    - host: localhost
+      http:
+        paths:
+          - backend:
+              service:
+                name: fixit-backend-service
+                port:
+                  number: 8080
+            path: /fixit-backend-service
+            pathType: Prefix
+
 
 

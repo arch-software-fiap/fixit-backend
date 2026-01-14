@@ -13,7 +13,7 @@ spec:
         app: fixit-backend-service
     spec:
       containers:
-        - name: ${project.artifactId}
+        - name: fixit-backend
           image: ghcr.io/arch-software-fiap/fixit-backend:latest
           ports:
             - containerPort: 8080
