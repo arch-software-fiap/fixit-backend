@@ -20,9 +20,9 @@ public class CriarServicoUseCaseImpl implements CriarServicoUseCase {
         Servico salvo = repository.salvar(servico);
         return new ServicoOutput(
             salvo.getId(),
-            salvo.getNmServico(),
-            salvo.getDsServico(),
-            salvo.getVlPrecoBase(),
+            salvo.getNome(),
+            salvo.getDescricao(),
+            salvo.getValorPrecoBase(),
             salvo.getDthAtualizacao()
         );
     }

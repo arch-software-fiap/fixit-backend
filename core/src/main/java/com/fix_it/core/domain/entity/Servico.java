@@ -7,16 +7,16 @@ import java.util.UUID;
 public class Servico {
 
     private final UUID id;
-    private String nmServico;
-    private String dsServico;
-    private Long vlPrecoBase;
+    private String nome;
+    private String descricao;
+    private Long valorPrecoBase;
     private LocalDateTime dthAtualizacao;
 
-    private Servico(UUID id, String nmServico, String dsServico, Long vlPrecoBase, LocalDateTime dthAtualizacao) {
+    private Servico(UUID id, String nome, String descricao, Long valorPrecoBase, LocalDateTime dthAtualizacao) {
         this.id = id;
-        this.nmServico = nmServico;
-        this.dsServico = dsServico;
-        this.vlPrecoBase = vlPrecoBase;
+        this.nome = nome;
+        this.descricao = descricao;
+        this.valorPrecoBase = valorPrecoBase;
         this.dthAtualizacao = dthAtualizacao;
     }
 
@@ -29,9 +29,9 @@ public class Servico {
     }
 
     public void atualizar(String nmServico, String dsServico, Long vlPrecoBase) {
-        this.nmServico = nmServico;
-        this.dsServico = dsServico;
-        this.vlPrecoBase = vlPrecoBase;
+        this.nome = nmServico;
+        this.descricao = dsServico;
+        this.valorPrecoBase = vlPrecoBase;
         this.dthAtualizacao = LocalDateTime.now();
     }
 
@@ -39,16 +39,16 @@ public class Servico {
         return id;
     }
 
-    public String getNmServico() {
-        return nmServico;
+    public String getNome() {
+        return nome;
     }
 
-    public String getDsServico() {
-        return dsServico;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public Long getVlPrecoBase() {
-        return vlPrecoBase;
+    public Long getValorPrecoBase() {
+        return valorPrecoBase;
     }
 
     public LocalDateTime getDthAtualizacao() {

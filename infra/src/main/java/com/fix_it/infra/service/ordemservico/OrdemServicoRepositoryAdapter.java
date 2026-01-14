@@ -1,8 +1,8 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.OrdemServico;
-import com.fix_it.infra.persistence.entity.OrdemServicoEntity;
-import com.fix_it.infra.persistence.repository.SpringDataOrdemServicoRepository;
+import com.fix_it.infra.domain.OrdemServicoEntity;
+import com.fix_it.infra.repository.SpringDataOrdemServicoRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -43,6 +43,13 @@ public class OrdemServicoRepositoryAdapter implements com.fix_it.usecase.port.Or
     @Override
     public List<OrdemServico> buscarPorCpfCnpjCliente(String cpfCnpj) {
         return ordemServicoRepository.findAllByCliente_CpfCnpj(cpfCnpj).stream()
+            .map(mapper::toDomain)
+            .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<OrdemServico> listarParaAcompanhamento() {
+        return ordemServicoRepository.listarParaAcompanhamento().stream()
             .map(mapper::toDomain)
             .collect(Collectors.toList());
     }

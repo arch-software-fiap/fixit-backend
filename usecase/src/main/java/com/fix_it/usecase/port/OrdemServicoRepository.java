@@ -10,4 +10,5 @@ public interface OrdemServicoRepository {
     Optional<OrdemServico> buscarPorId(UUID id);
     List<OrdemServico> listarTodas();
     List<OrdemServico> buscarPorCpfCnpjCliente(String cpfCnpj);
+    List<OrdemServico> listarParaAcompanhamento();
 }

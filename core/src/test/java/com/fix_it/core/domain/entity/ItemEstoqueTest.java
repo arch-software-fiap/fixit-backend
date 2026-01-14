@@ -27,9 +27,9 @@ class ItemEstoqueTest {
         ItemEstoque item = ItemEstoque.of(id, nome, desc, preco, atual, minimo, agora, tipo, abaixoMinimo);
 
         assertThat(item.getId()).isEqualTo(id);
-        assertThat(item.getNmItemEstoque()).isEqualTo(nome);
-        assertThat(item.getDsItemEstoque()).isEqualTo(desc);
-        assertThat(item.getVlPrecoUnitario()).isEqualTo(preco);
+        assertThat(item.getNome()).isEqualTo(nome);
+        assertThat(item.getDescricao()).isEqualTo(desc);
+        assertThat(item.getValor()).isEqualTo(preco);
         assertThat(item.getQtEstoqueAtual()).isEqualTo(atual);
         assertThat(item.getQtEstoqueMinimo()).isEqualTo(minimo);
         assertThat(item.getDthAtualizacao()).isEqualTo(agora);

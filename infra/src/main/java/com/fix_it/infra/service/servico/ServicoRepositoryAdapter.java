@@ -1,8 +1,8 @@
 package com.fix_it.infra.service.servico;
 
 import com.fix_it.core.domain.entity.Servico;
-import com.fix_it.infra.persistence.entity.ServicoEntity;
-import com.fix_it.infra.persistence.repository.SpringDataServicoRepository;
+import com.fix_it.infra.domain.ServicoEntity;
+import com.fix_it.infra.repository.SpringDataServicoRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

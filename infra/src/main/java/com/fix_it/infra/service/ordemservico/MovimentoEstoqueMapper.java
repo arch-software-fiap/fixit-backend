@@ -1,7 +1,7 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.MovimentoEstoque;
-import com.fix_it.infra.persistence.entity.MovimentoEstoqueEntity;
+import com.fix_it.infra.domain.MovimentoEstoqueEntity;
 import org.springframework.stereotype.Component;
 
 @Component

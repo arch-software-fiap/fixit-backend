@@ -1,8 +1,8 @@
 package com.fix_it.infra.service.cliente;
 
 import com.fix_it.core.domain.entity.Cliente;
-import com.fix_it.infra.persistence.entity.ClienteEntity;
-import com.fix_it.infra.persistence.repository.SpringDataClienteJpaRepository;
+import com.fix_it.infra.domain.ClienteEntity;
+import com.fix_it.infra.repository.SpringDataClienteJpaRepository;
 import com.fix_it.usecase.port.ClienteRepository;
 import org.springframework.stereotype.Component;
 

@@ -3,28 +3,26 @@ package com.fix_it.core.domain.entity;
 import com.fix_it.core.domain.enums.TipoItemEstoque;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 public class ItemEstoque {
 
     private final UUID id;
-    private String nmItemEstoque;
-    private String dsItemEstoque;
-    private Long vlPrecoUnitario;
+    private String nome;
+    private String descricao;
+    private Long valor;
     private Integer qtEstoqueAtual;
     private Integer qtEstoqueMinimo;
     private LocalDateTime dthAtualizacao;
     private TipoItemEstoque tipo;
     private Boolean abaixoMinimo;
 
-    private ItemEstoque(UUID id, String nmItemEstoque, String dsItemEstoque, Long vlPrecoUnitario, Integer qtEstoqueAtual, Integer qtEstoqueMinimo, LocalDateTime dthAtualizacao, TipoItemEstoque tipo, Boolean abaixoMinimo) {
+    private ItemEstoque(UUID id, String nome, String descricao, Long valor, Integer qtEstoqueAtual, Integer qtEstoqueMinimo, LocalDateTime dthAtualizacao, TipoItemEstoque tipo, Boolean abaixoMinimo) {
         this.id = id;
-        this.nmItemEstoque = nmItemEstoque;
-        this.dsItemEstoque = dsItemEstoque;
-        this.vlPrecoUnitario = vlPrecoUnitario;
+        this.nome = nome;
+        this.descricao = descricao;
+        this.valor = valor;
         this.qtEstoqueAtual = qtEstoqueAtual;
         this.qtEstoqueMinimo = qtEstoqueMinimo;
         this.dthAtualizacao = dthAtualizacao;
@@ -40,16 +38,16 @@ public class ItemEstoque {
         return id;
     }
 
-    public String getNmItemEstoque() {
-        return nmItemEstoque;
+    public String getNome() {
+        return nome;
     }
 
-    public String getDsItemEstoque() {
-        return dsItemEstoque;
+    public String getDescricao() {
+        return descricao;
     }
 
-    public Long getVlPrecoUnitario() {
-        return vlPrecoUnitario;
+    public Long getValor() {
+        return valor;
     }
 
     public Integer getQtEstoqueAtual() {

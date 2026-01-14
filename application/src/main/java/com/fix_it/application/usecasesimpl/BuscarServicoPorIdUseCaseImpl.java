@@ -21,9 +21,9 @@ public class BuscarServicoPorIdUseCaseImpl implements BuscarServicoPorIdUseCase 
 
         return new ServicoOutput(
             servico.getId(),
-            servico.getNmServico(),
-            servico.getDsServico(),
-            servico.getVlPrecoBase(),
+            servico.getNome(),
+            servico.getDescricao(),
+            servico.getValorPrecoBase(),
             servico.getDthAtualizacao()
         );
     }

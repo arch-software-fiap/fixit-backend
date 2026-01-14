@@ -2,7 +2,7 @@ package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.ItemServicoOS;
 import com.fix_it.infra.service.servico.ServicoMapper;
-import com.fix_it.infra.persistence.entity.ItemServicoOSEntity;
+import com.fix_it.infra.domain.ItemServicoOSEntity;
 import org.springframework.stereotype.Component;
 
 @Component

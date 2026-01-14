@@ -20,9 +20,9 @@ class ServicoTest {
         Servico servico = Servico.novo(nome, descricao, preco);
 
         assertThat(servico.getId()).isNull();
-        assertThat(servico.getNmServico()).isEqualTo(nome);
-        assertThat(servico.getDsServico()).isEqualTo(descricao);
-        assertThat(servico.getVlPrecoBase()).isEqualTo(preco);
+        assertThat(servico.getNome()).isEqualTo(nome);
+        assertThat(servico.getDescricao()).isEqualTo(descricao);
+        assertThat(servico.getValorPrecoBase()).isEqualTo(preco);
         assertThat(servico.getDthAtualizacao()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 
@@ -38,9 +38,9 @@ class ServicoTest {
         Servico servico = Servico.of(id, nome, descricao, preco, agora);
 
         assertThat(servico.getId()).isEqualTo(id);
-        assertThat(servico.getNmServico()).isEqualTo(nome);
-        assertThat(servico.getDsServico()).isEqualTo(descricao);
-        assertThat(servico.getVlPrecoBase()).isEqualTo(preco);
+        assertThat(servico.getNome()).isEqualTo(nome);
+        assertThat(servico.getDescricao()).isEqualTo(descricao);
+        assertThat(servico.getValorPrecoBase()).isEqualTo(preco);
         assertThat(servico.getDthAtualizacao()).isEqualTo(agora);
     }
 
@@ -52,9 +52,9 @@ class ServicoTest {
 
         servico.atualizar("Nome Novo", "Descricao Nova", 20000L);
 
-        assertThat(servico.getNmServico()).isEqualTo("Nome Novo");
-        assertThat(servico.getDsServico()).isEqualTo("Descricao Nova");
-        assertThat(servico.getVlPrecoBase()).isEqualTo(20000L);
+        assertThat(servico.getNome()).isEqualTo("Nome Novo");
+        assertThat(servico.getDescricao()).isEqualTo("Descricao Nova");
+        assertThat(servico.getValorPrecoBase()).isEqualTo(20000L);
         assertThat(servico.getDthAtualizacao()).isAfterOrEqualTo(dthCriacao);
     }
 

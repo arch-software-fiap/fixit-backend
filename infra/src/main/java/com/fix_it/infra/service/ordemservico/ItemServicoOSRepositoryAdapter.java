@@ -1,8 +1,8 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.ItemServicoOS;
-import com.fix_it.infra.persistence.entity.ItemServicoOSEntity;
-import com.fix_it.infra.persistence.repository.SpringDataItemServicoOSRepository;
+import com.fix_it.infra.domain.ItemServicoOSEntity;
+import com.fix_it.infra.repository.SpringDataItemServicoOSRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

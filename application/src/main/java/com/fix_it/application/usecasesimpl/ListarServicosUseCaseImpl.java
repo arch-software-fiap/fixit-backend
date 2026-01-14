@@ -19,9 +19,9 @@ public class ListarServicosUseCaseImpl implements ListarServicosUseCase {
         return repository.listarTodos().stream()
             .map(s -> new ServicoOutput(
                 s.getId(),
-                s.getNmServico(),
-                s.getDsServico(),
-                s.getVlPrecoBase(),
+                s.getNome(),
+                s.getDescricao(),
+                s.getValorPrecoBase(),
                 s.getDthAtualizacao()
             ))
             .collect(Collectors.toList());

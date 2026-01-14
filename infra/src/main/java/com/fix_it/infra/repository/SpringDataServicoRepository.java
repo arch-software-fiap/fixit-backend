@@ -1,6 +1,6 @@
-package com.fix_it.infra.persistence.repository;
+package com.fix_it.infra.repository;
 
-import com.fix_it.infra.persistence.entity.ServicoEntity;
+import com.fix_it.infra.domain.ServicoEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

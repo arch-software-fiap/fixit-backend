@@ -1,7 +1,7 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.ItemEstoque;
-import com.fix_it.infra.persistence.entity.ItemEstoqueEntity;
+import com.fix_it.infra.domain.ItemEstoqueEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,9 +11,9 @@ public class ItemEstoqueMapper {
         if (domain == null) return null;
         return new ItemEstoqueEntity(
             domain.getId(),
-            domain.getNmItemEstoque(),
-            domain.getDsItemEstoque(),
-            domain.getVlPrecoUnitario(),
+            domain.getNome(),
+            domain.getDescricao(),
+            domain.getValor(),
             domain.getQtEstoqueAtual(),
             domain.getQtEstoqueMinimo(),
             domain.getDthAtualizacao(),
@@ -26,9 +26,9 @@ public class ItemEstoqueMapper {
         if (entity == null) return null;
         return ItemEstoque.of(
             entity.getId(),
-            entity.getNmItemEstoque(),
-            entity.getDsItemEstoque(),
-            entity.getVlPrecoUnitario(),
+            entity.getNome(),
+            entity.getDescricao(),
+            entity.getValor(),
             entity.getQtEstoqueAtual(),
             entity.getQtEstoqueMinimo(),
             entity.getDthAtualizacao(),

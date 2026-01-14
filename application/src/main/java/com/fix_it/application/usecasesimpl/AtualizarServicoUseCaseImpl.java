@@ -25,9 +25,9 @@ public class AtualizarServicoUseCaseImpl implements AtualizarServicoUseCase {
 
         return new ServicoOutput(
             salvo.getId(),
-            salvo.getNmServico(),
-            salvo.getDsServico(),
-            salvo.getVlPrecoBase(),
+            salvo.getNome(),
+            salvo.getDescricao(),
+            salvo.getValorPrecoBase(),
             salvo.getDthAtualizacao()
         );
     }

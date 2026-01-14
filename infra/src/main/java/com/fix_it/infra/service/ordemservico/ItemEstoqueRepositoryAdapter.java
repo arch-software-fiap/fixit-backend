@@ -1,8 +1,8 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.ItemEstoque;
-import com.fix_it.infra.persistence.entity.ItemEstoqueEntity;
-import com.fix_it.infra.persistence.repository.SpringDataItemEstoqueRepository;
+import com.fix_it.infra.domain.ItemEstoqueEntity;
+import com.fix_it.infra.repository.SpringDataItemEstoqueRepository;
 import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;

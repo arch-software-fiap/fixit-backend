@@ -1,7 +1,7 @@
 package com.fix_it.infra.service.cliente;
 
 import com.fix_it.core.domain.entity.Cliente;
-import com.fix_it.infra.persistence.entity.ClienteEntity;
+import com.fix_it.infra.domain.ClienteEntity;
 import org.springframework.stereotype.Component;
 
 @Component

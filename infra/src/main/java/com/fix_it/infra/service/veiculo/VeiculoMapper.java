@@ -2,7 +2,7 @@ package com.fix_it.infra.service.veiculo;
 
 import com.fix_it.core.domain.entity.Veiculo;
 import com.fix_it.infra.service.cliente.ClienteMapper;
-import com.fix_it.infra.persistence.entity.VeiculoEntity;
+import com.fix_it.infra.domain.VeiculoEntity;
 import org.springframework.stereotype.Component;
 
 @Component

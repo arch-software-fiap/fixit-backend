@@ -1,6 +1,6 @@
-package com.fix_it.infra.persistence.repository;
+package com.fix_it.infra.repository;
 
-import com.fix_it.infra.persistence.entity.ItemPecaOSEntity;
+import com.fix_it.infra.domain.ItemServicoOSEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface SpringDataItemPecaOSRepository extends JpaRepository<ItemPecaOSEntity, UUID> {
-    List<ItemPecaOSEntity> findByOrdemServico_Id(UUID osId);
+public interface SpringDataItemServicoOSRepository extends JpaRepository<ItemServicoOSEntity, UUID> {
+    List<ItemServicoOSEntity> findByOrdemServico_Id(UUID osId);
 
     @Query("""
                select coalesce(sum(i.valorTotal),0)
-               from ItemPecaOSEntity i
+               from ItemServicoOSEntity i
                where i.ordemServico.id = :osId
             """)
     long sumValorTotalByOsId(@Param("osId") UUID osId);

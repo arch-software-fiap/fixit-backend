@@ -1,7 +1,7 @@
 package com.fix_it.infra.service.servico;
 
 import com.fix_it.core.domain.entity.Servico;
-import com.fix_it.infra.persistence.entity.ServicoEntity;
+import com.fix_it.infra.domain.ServicoEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -11,9 +11,9 @@ public class ServicoMapper {
         if (domain == null) return null;
         return new ServicoEntity(
             domain.getId(),
-            domain.getNmServico(),
-            domain.getDsServico(),
-            domain.getVlPrecoBase(),
+            domain.getNome(),
+            domain.getDescricao(),
+            domain.getValorPrecoBase(),
             domain.getDthAtualizacao()
         );
     }

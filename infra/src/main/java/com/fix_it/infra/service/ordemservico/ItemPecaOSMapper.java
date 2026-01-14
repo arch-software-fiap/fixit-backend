@@ -1,7 +1,7 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.ItemPecaOS;
-import com.fix_it.infra.persistence.entity.ItemPecaOSEntity;
+import com.fix_it.infra.domain.ItemPecaOSEntity;
 import org.springframework.stereotype.Component;
 
 @Component

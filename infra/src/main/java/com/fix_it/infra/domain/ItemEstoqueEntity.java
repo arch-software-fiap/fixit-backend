@@ -1,4 +1,4 @@
-package com.fix_it.infra.persistence.entity;
+package com.fix_it.infra.domain;
 
 import com.fix_it.core.domain.enums.TipoItemEstoque;
 import jakarta.persistence.*;
@@ -26,13 +26,13 @@ public class ItemEstoqueEntity {
     private UUID id;
 
     @Column(name = "nm_item_estoque")
-    private String nmItemEstoque;
+    private String nome;
 
     @Column(name = "ds_item_estoque", columnDefinition = "TEXT")
-    private String dsItemEstoque;
+    private String descricao;
 
     @Column(name = "vl_preco_unitario")
-    private Long vlPrecoUnitario;
+    private Long valor;
 
     @Column(name = "qt_estoque_atual")
     private Integer qtEstoqueAtual;

@@ -1,4 +1,4 @@
-package com.fix_it.infra.persistence.entity;
+package com.fix_it.infra.domain;
 
 import com.fix_it.core.domain.enums.TipoMovimentoEstoque;
 import jakarta.persistence.*;

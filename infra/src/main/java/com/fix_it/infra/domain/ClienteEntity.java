@@ -1,4 +1,4 @@
-package com.fix_it.infra.persistence.entity;
+package com.fix_it.infra.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;

@@ -3,7 +3,7 @@ package com.fix_it.infra.service.ordemservico;
 import com.fix_it.core.domain.entity.OrdemServico;
 import com.fix_it.infra.service.cliente.ClienteMapper;
 import com.fix_it.infra.service.veiculo.VeiculoMapper;
-import com.fix_it.infra.persistence.entity.OrdemServicoEntity;
+import com.fix_it.infra.domain.OrdemServicoEntity;
 import org.springframework.stereotype.Component;
 
 @Component

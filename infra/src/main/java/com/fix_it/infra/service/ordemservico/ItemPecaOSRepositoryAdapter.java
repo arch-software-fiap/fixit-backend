@@ -1,8 +1,8 @@
 package com.fix_it.infra.service.ordemservico;
 
 import com.fix_it.core.domain.entity.ItemPecaOS;
-import com.fix_it.infra.persistence.entity.ItemPecaOSEntity;
-import com.fix_it.infra.persistence.repository.SpringDataItemPecaOSRepository;
+import com.fix_it.infra.domain.ItemPecaOSEntity;
+import com.fix_it.infra.repository.SpringDataItemPecaOSRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -39,7 +39,7 @@ public class AdicionarItemPecaUseCaseImpl implements AdicionarItemPecaUseCase {
 
         int atualizados = itemEstoqueRepository.baixarEstoqueSeDisponivel(estoque.getId(), input.quantidade());
         if (atualizados == 0) {
-            throw new IllegalStateException("Estoque insuficiente para " + estoque.getNmItemEstoque());
+            throw new IllegalStateException("Estoque insuficiente para " + estoque.getNome());
         }
 
         ItemPecaOS itemPeca = ItemPecaOS.novo(

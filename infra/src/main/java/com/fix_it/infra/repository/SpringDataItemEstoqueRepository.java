@@ -1,6 +1,6 @@
-package com.fix_it.infra.persistence.repository;
+package com.fix_it.infra.repository;
 
-import com.fix_it.infra.persistence.entity.ItemEstoqueEntity;
+import com.fix_it.infra.domain.ItemEstoqueEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
