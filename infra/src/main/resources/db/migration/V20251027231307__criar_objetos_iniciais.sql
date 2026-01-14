@@ -1,4 +1,4 @@
-create table clienteEntity (
+create table cliente (
                          dt_cadastro date,
                          dth_atualizacao timestamp(6),
                          sq_cliente UUID not null,
@@ -113,7 +113,7 @@ alter table if exists orcamento
 alter table if exists ordem_servico
     add constraint FK_ORDEMSERVICO_CLIENTE
     foreign key (sq_cliente)
-    references clienteEntity;
+    references cliente;
 
 alter table if exists ordem_servico
     add constraint FK_ORDEMSERVICO_VEICULO
@@ -143,5 +143,5 @@ alter table if exists os_servico
 alter table if exists veiculo
     add constraint FK_VEICULO_CLIENTE
     foreign key (sq_cliente)
-    references clienteEntity;
+    references cliente;
 
