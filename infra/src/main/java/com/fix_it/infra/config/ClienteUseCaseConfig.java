@@ -1,14 +1,10 @@
 package com.fix_it.infra.config;
 
-import com.fix_it.application.usecasesimpl.BuscarClientePorDocumentoUseCaseImpl;
-import com.fix_it.application.usecasesimpl.BuscarClientePorIdUseCaseImpl;
-import com.fix_it.application.usecasesimpl.ListarClientesUseCaseImpl;
-import com.fix_it.application.usecasesimpl.RemoverClienteUseCaseImpl;
-import com.fix_it.usecase.cliente.BuscarClientePorDocumentoUseCase;
-import com.fix_it.usecase.cliente.BuscarClientePorIdUseCase;
-import com.fix_it.usecase.cliente.ListarClientesUseCase;
-import com.fix_it.usecase.cliente.RemoverClienteUseCase;
+import com.fix_it.application.usecasesimpl.*;
+import com.fix_it.infra.service.cliente.DocumentoValidatorImpl;
+import com.fix_it.usecase.cliente.*;
 import com.fix_it.usecase.port.ClienteRepository;
+import com.fix_it.usecase.port.DocumentoValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -18,6 +14,16 @@ public class ClienteUseCaseConfig {
     @Bean
     public ListarClientesUseCase listarClientesUseCase(ClienteRepository repo) {
         return new ListarClientesUseCaseImpl(repo);
+    }
+
+    @Bean
+    public CriarClienteUseCase criarClienteUseCase(ClienteRepository repo, DocumentoValidator documentoValidator) {
+        return new CriarClienteUseCaseImpl(repo, documentoValidator);
+    }
+
+    @Bean
+    AtualizarClienteUseCase atualizarClienteUseCase(ClienteRepository repo, DocumentoValidator documentoValidator) {
+        return new AtualizarClienteUseCaseImpl(repo, documentoValidator);
     }
 
     @Bean
@@ -35,4 +41,8 @@ public class ClienteUseCaseConfig {
         return new RemoverClienteUseCaseImpl(repo);
     }
 
+    @Bean
+    public DocumentoValidator documentoValidator() {
+        return new DocumentoValidatorImpl();
+    }
 }
