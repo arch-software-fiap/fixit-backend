@@ -60,7 +60,7 @@ Em outro terminal, se necessário, configure a versão do Java com sdkman:
 ```
 Rode o backend
 ```bash
-  mvn clean spring-boot:run
+  mvn clean install && mvn spring-boot:run -pl infra
 ```
 
 ## 🧪 Testando os Endpoints com Postman
