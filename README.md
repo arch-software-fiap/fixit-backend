@@ -19,6 +19,17 @@ Este projeto foi desenvolvido como parte do Tech Challenge de Pós-Graduação e
 
 ---
 
+## 🏗️ Arquitetura (Clean Architecture)
+
+O projeto segue os princípios da **Clean Architecture**, visando a separação de preocupações, independência de frameworks e testabilidade. A estrutura está dividida nos seguintes módulos:
+
+- **`core` (Enterprise Business Rules):** Contém as entidades de domínio e exceções de negócio. É o núcleo do sistema, livre de dependências externas.
+- **`usecase` (Application Business Rules):** Define as interfaces (ports) de entrada e saída e os contratos dos casos de uso da aplicação.
+- **`application` (Use Case Implementations):** Contém a implementação concreta dos casos de uso definidos no módulo `usecase`.
+- **`infra` (Interface Adapters & Frameworks):** Camada mais externa que contém as implementações de infraestrutura, como adaptadores de banco de dados (Spring Data JPA), controladores REST, configurações do Spring Boot e integrações externas (Keycloak).
+
+---
+
 ## 🚀 Execução totalmente via Docker
 
 Para executar todo o ecossistema da aplicação usando Docker (aplicação, banco de dados e Keycloak), execute o seguinte comando na raiz do projeto:
@@ -49,7 +60,7 @@ Em outro terminal, se necessário, configure a versão do Java com sdkman:
 ```
 Rode o backend
 ```bash
-  mvn clean spring-boot:run
+  mvn clean install && mvn spring-boot:run -pl infra
 ```
 
 ## 🧪 Testando os Endpoints com Postman
