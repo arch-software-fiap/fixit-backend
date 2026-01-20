@@ -5,7 +5,6 @@ import com.fix_it.usecase.ordemservico.CriarOrdemServicoUseCase;
 import com.fix_it.usecase.ordemservico.input.CriarOrdemServicoInput;
 import com.fix_it.usecase.ordemservico.output.OrdemServicoOutput;
 import com.fix_it.usecase.port.*;
-import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,6 @@ public class CriarOrdemServicoUseCaseImpl implements CriarOrdemServicoUseCase {
     }
 
     @Override
-    @Transactional
     public OrdemServicoOutput executar(CriarOrdemServicoInput input) {
         Cliente cliente = clienteRepository.buscarPorId(input.clienteId())
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));

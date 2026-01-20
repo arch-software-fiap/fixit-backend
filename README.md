@@ -1,93 +1,94 @@
-# FixIt Backend
+# FixIt Backend - Fase 2
 
-Este é o backend da aplicação **FixIt**, desenvolvido em **Java 21**, autenticação e autorização via **Keycloak** e persistência de dados usando **PostgreSQL**.
-
-Este projeto foi desenvolvido como parte do Tech Challenge de Pós-Graduação em **Arquitetura de Software** da **FIAP**.
+Este é o backend da aplicação **FixIt**, desenvolvido como parte do Tech Challenge de Pós-Graduação em **Arquitetura de Software** da **FIAP**.
 
 ---
 
-## 🛠️ Tecnologias utilizadas
+## 🎯 Descrição da Solução e Objetivos da Fase
 
-- **Java 21 (LTS)**
-- **Spring Boot 3.5.6**
-- **PostgreSQL 18**
-- **Keycloak 23**
-- **Docker & Docker Compose**
-- **Maven 3.x**
-- **Flyway** (migrações automáticas de banco de dados)
-- **SonarQube** (para análise estática de código)
+Após a implantação do sistema inicial, a oficina mecânica busca evoluir a aplicação para garantir qualidade, resiliência e escalabilidade, incorporando práticas modernas de infraestrutura e automação.
 
----
+### Objetivos
 
-## 🏗️ Arquitetura (Clean Architecture)
-
-O projeto segue os princípios da **Clean Architecture**, visando a separação de preocupações, independência de frameworks e testabilidade. A estrutura está dividida nos seguintes módulos:
-
-- **`core` (Enterprise Business Rules):** Contém as entidades de domínio e exceções de negócio. É o núcleo do sistema, livre de dependências externas.
-- **`usecase` (Application Business Rules):** Define as interfaces (ports) de entrada e saída e os contratos dos casos de uso da aplicação.
-- **`application` (Use Case Implementations):** Contém a implementação concreta dos casos de uso definidos no módulo `usecase`.
-- **`infra` (Interface Adapters & Frameworks):** Camada mais externa que contém as implementações de infraestrutura, como adaptadores de banco de dados (Spring Data JPA), controladores REST, configurações do Spring Boot e integrações externas (Keycloak).
+- **Reduzir riscos operacionais** por meio de infraestrutura escalável.
+- **Automatizar o provisionamento e o deploy** do ambiente.
+- **Melhorar a qualidade e a organização do código** com Clean Architecture.
+- **Preparar a aplicação para suportar grandes volumes** de ordens de serviço com escalabilidade dinâmica.
 
 ---
 
-## 🚀 Execução totalmente via Docker
+## 🏗️ Desenho da Arquitetura Proposta
 
-Para executar todo o ecossistema da aplicação usando Docker (aplicação, banco de dados e Keycloak), execute o seguinte comando na raiz do projeto:
+### Componentes da Aplicação (Clean Architecture)
+
+A arquitetura do projeto segue os princípios da **Clean Architecture** para garantir a separação de responsabilidades e a independência de frameworks. O diagrama abaixo ilustra a relação entre os quatro módulos do projeto.
+
+![Arquitetura Limpa - Fix-it](.docs/clean-arch.svg)
+
+
+### Infraestrutura Provisionada
+
+
+
+### Fluxo de Deploy
+
+
+
+---
+
+## 🚀 Instruções de Execução e Deploy
+
+### Execução Local (Docker Compose)
+
+Para executar todo o ecossistema da aplicação localmente (aplicação, banco de dados e Keycloak), execute o seguinte comando na raiz do projeto:
 
 ```bash
-  docker compose up --build --remove-orphans
-```
-### Este comando irá:
-
-- Subir o back-end Java
-
-- Provisionar o PostgreSQL com dados inicializados
-
-- Iniciar o Keycloak com realm e clientes importados
-
-## 🧩 Execução parcial via Docker
-
-Caso prefira rodar apenas os serviços de infraestrutura via Docker:
-
-Suba o banco de dados e Keycloak
-
-```bash
-  docker compose up postgres-fixit-backend  keycloak-fixit-backend --remove-orphans
-```
-Em outro terminal, se necessário, configure a versão do Java com sdkman:
-```bash
-  sdk env
-```
-Rode o backend
-```bash
-  mvn clean install && mvn spring-boot:run -pl infra
+docker compose up --build --remove-orphans
 ```
 
-## 🧪 Testando os Endpoints com Postman
+Para rodar apenas os serviços de infraestrutura e a aplicação separadamente:
 
-Para testar os endpoints da API, utilize o Postman importando a collection disponível no diretório:
+1.  **Subir o banco de dados e Keycloak:**
+    ```bash
+    docker compose up postgres-fixit-backend keycloak-fixit-backend --remove-orphans
+    ```
+2.  **Executar a aplicação (em outro terminal):**
+    ```bash
+    mvn clean install && mvn spring-boot:run -pl infra
+    ```
 
-> .postman/
+### Provisionamento da Infraestrutura com Terraform
 
-Basta importar o arquivo .json no Postman e ajustar os endpoints conforme necessário
 
-##  📖 Documentação da API (Swagger) 
+### Deploy em Kubernetes
 
-Para acessar o Swagger da aplicação, acesse a url:
 
-> http://localhost:8080/fixit-backend/swagger-ui/index.html
+---
 
-⚠️ Certifique-se de que a aplicação está rodando e que você está utilizando a porta e o contexto corretos (configurados no application.properties).
+## 📖 Documentação da API
 
-👥 Participantes do projeto
+A documentação completa das APIs está disponível através dos seguintes links:
 
-Este projeto foi desenvolvido pelos alunos da Pós-Graduação em Arquitetura de Software - FIAP:
+- **Postman Collection:** Uma coleção completa para testes dos endpoints está disponível no diretório do projeto. Basta importar o seguinte arquivo no Postman:
+  > `.postman/fixit_backend.postman_collection.json`
 
- - Matheus Leal (rm368173)
+---
 
- - Laura Alves (rm368613)
+## 🛠️ Tecnologias Utilizadas
 
- - Marcio Souza (rm368671)
+- **Java 21 (LTS)** & **Spring Boot 3**
+- **PostgreSQL** & **Flyway**
+- **Docker** & **Docker Compose**
+- **Kubernetes** & **Terraform**
+- **Keycloak** para autenticação/autorização
+- **Maven** & **SonarQube**
+
+---
+
+## 👥 Participantes do Projeto
+
+- Matheus Leal (rm368173)
+- Laura Alves (rm368613)
+- Marcio Souza (rm368671)
 
 Feito com 💛 pela equipe FixIt!
-
