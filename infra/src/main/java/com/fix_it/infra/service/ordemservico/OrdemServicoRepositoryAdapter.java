@@ -4,6 +4,7 @@ import com.fix_it.core.domain.entity.OrdemServico;
 import com.fix_it.infra.domain.OrdemServicoEntity;
 import com.fix_it.infra.repository.SpringDataOrdemServicoRepository;
 import com.fix_it.usecase.port.OrdemServicoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -23,11 +24,10 @@ public class OrdemServicoRepositoryAdapter implements OrdemServicoRepository {
     }
 
     @Override
+    @Transactional
     public OrdemServico salvar(OrdemServico os) {
         OrdemServicoEntity entity = mapper.toEntity(os);
         OrdemServicoEntity salva = ordemServicoRepository.save(entity);
-        // Agora que a transação é maior, podemos mapear diretamente a entidade retornada pelo save.
-        // O carregamento das dependências será feito pelo findByIdWithDependencies se necessário em outras operações.
         return mapper.toDomain(salva);
     }
 
