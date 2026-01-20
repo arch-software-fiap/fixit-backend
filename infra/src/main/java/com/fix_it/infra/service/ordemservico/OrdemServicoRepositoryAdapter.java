@@ -51,6 +51,7 @@ public class OrdemServicoRepositoryAdapter implements OrdemServicoRepository {
     }
 
     @Override
+    @Transactional
     public List<OrdemServico> listarParaAcompanhamento() {
         return ordemServicoRepository.listarParaAcompanhamento().stream()
             .map(mapper::toDomain)
