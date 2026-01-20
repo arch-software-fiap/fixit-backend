@@ -1,0 +1,23 @@
+# Configurações do Cluster
+cluster_name = "fixit-local"
+namespace    = "fixit"
+
+# Configurações da Aplicação
+app_image    = "ghcr.io/arch-software-fiap/fixit-backend:latest"
+app_replicas = 1
+
+# Configurações do PostgreSQL
+postgres_user     = "fixitbackend"
+postgres_password = "fixitbackend"
+postgres_db       = "fixitbackend"
+
+# Configurações do Keycloak
+keycloak_admin_user     = "admin"
+keycloak_admin_password = "admin"
+
+# Configurações de Log
+logging_level = "INFO"
+
+# Configurações do GitHub Container Registry
+ghcr_username = "seu-usuario-github"
+ghcr_token    = "seu-token-github"
