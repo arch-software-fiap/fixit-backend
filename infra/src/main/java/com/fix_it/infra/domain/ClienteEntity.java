@@ -66,11 +66,4 @@ public class ClienteEntity {
         dthAtualizacao = LocalDateTime.now();
     }
 
-    public void updateFrom(ClienteEntity clienteEntity) {
-        if (clienteEntity == null) return;
-        this.setNome(clienteEntity.getNome());
-        this.setCpfCnpj(clienteEntity.getCpfCnpj());
-        this.setEmail(clienteEntity.getEmail());
-        this.setTelefone(clienteEntity.getTelefone());
-    }
 }

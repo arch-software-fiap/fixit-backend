@@ -3,6 +3,7 @@ package com.fix_it.infra.service.ordemservico;
 import com.fix_it.core.domain.entity.OrdemServico;
 import com.fix_it.infra.domain.OrdemServicoEntity;
 import com.fix_it.infra.repository.SpringDataOrdemServicoRepository;
+import com.fix_it.usecase.port.OrdemServicoRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,7 +12,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
-public class OrdemServicoRepositoryAdapter implements com.fix_it.usecase.port.OrdemServicoRepository {
+public class OrdemServicoRepositoryAdapter implements OrdemServicoRepository {
 
     private final SpringDataOrdemServicoRepository ordemServicoRepository;
     private final OrdemServicoMapper mapper;
@@ -25,12 +26,14 @@ public class OrdemServicoRepositoryAdapter implements com.fix_it.usecase.port.Or
     public OrdemServico salvar(OrdemServico os) {
         OrdemServicoEntity entity = mapper.toEntity(os);
         OrdemServicoEntity salva = ordemServicoRepository.save(entity);
+        // Agora que a transação é maior, podemos mapear diretamente a entidade retornada pelo save.
+        // O carregamento das dependências será feito pelo findByIdWithDependencies se necessário em outras operações.
         return mapper.toDomain(salva);
     }
 
     @Override
     public Optional<OrdemServico> buscarPorId(UUID id) {
-        return ordemServicoRepository.findById(id).map(mapper::toDomain);
+        return ordemServicoRepository.findByIdWithDependencies(id).map(mapper::toDomain);
     }
 
     @Override

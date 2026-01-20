@@ -1,22 +1,12 @@
 package com.fix_it.application.usecasesimpl;
 
-import com.fix_it.core.domain.entity.Cliente;
-import com.fix_it.core.domain.entity.ItemEstoque;
-import com.fix_it.core.domain.entity.ItemPecaOS;
-import com.fix_it.core.domain.entity.ItemServicoOS;
-import com.fix_it.core.domain.entity.OrdemServico;
-import com.fix_it.core.domain.entity.Servico;
-import com.fix_it.core.domain.entity.Veiculo;
+import com.fix_it.core.domain.entity.*;
 import com.fix_it.usecase.ordemservico.CriarOrdemServicoUseCase;
 import com.fix_it.usecase.ordemservico.input.CriarOrdemServicoInput;
 import com.fix_it.usecase.ordemservico.output.OrdemServicoOutput;
-import com.fix_it.usecase.port.ClienteRepository;
-import com.fix_it.usecase.port.ItemEstoqueRepository;
-import com.fix_it.usecase.port.ItemPecaOSRepository;
-import com.fix_it.usecase.port.ItemServicoOSRepository;
-import com.fix_it.usecase.port.OrdemServicoRepository;
-import com.fix_it.usecase.port.ServicoRepository;
-import com.fix_it.usecase.port.VeiculoRepository;
+import com.fix_it.usecase.port.*;
+import jakarta.transaction.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,12 +31,13 @@ public class CriarOrdemServicoUseCaseImpl implements CriarOrdemServicoUseCase {
     }
 
     @Override
+    @Transactional
     public OrdemServicoOutput executar(CriarOrdemServicoInput input) {
         Cliente cliente = clienteRepository.buscarPorId(input.clienteId())
-            .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
 
         Veiculo veiculo = veiculoRepository.buscarPorId(input.veiculoId())
-            .orElseThrow(() -> new IllegalArgumentException("Veículo não encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Veículo não encontrado"));
 
         if (!veiculo.getCliente().getId().equals(cliente.getId())) {
             throw new IllegalArgumentException("Veículo não pertence ao cliente informado.");
@@ -59,10 +50,14 @@ public class CriarOrdemServicoUseCaseImpl implements CriarOrdemServicoUseCase {
         if (input.servicos() != null) {
             input.servicos().forEach(servicoInput -> {
                 Servico servico = servicoRepository.buscarPorId(servicoInput.id())
-                    .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
-                ItemServicoOS itemServicoOS = ItemServicoOS.novo(servicoInput.quantidade(), servico.getValorPrecoBase(), salva, servico);
-                itemServicoOSRepository.salvar(itemServicoOS);
-                servicos.add(itemServicoOS);
+                        .orElseThrow(() -> new IllegalArgumentException("Serviço não encontrado"));
+
+                servicos.add(ItemServicoOS.novo(
+                        servicoInput.quantidade(),
+                        servico.getValorPrecoBase(),
+                        salva,
+                        servico
+                ));
             });
         }
 
@@ -70,28 +65,39 @@ public class CriarOrdemServicoUseCaseImpl implements CriarOrdemServicoUseCase {
         if (input.pecas() != null) {
             input.pecas().forEach(pecaInput -> {
                 ItemEstoque itemEstoque = itemEstoqueRepository.buscarPorId(pecaInput.id())
-                    .orElseThrow(() -> new IllegalArgumentException("Peça não encontrada"));
-                ItemPecaOS itemPecaOS = ItemPecaOS.novo(itemEstoque.getNome(), itemEstoque.getDescricao(), pecaInput.quantidade(), itemEstoque.getValor(), salva, itemEstoque);
-                itemPecaOSRepository.salvar(itemPecaOS);
-                pecas.add(itemPecaOS);
+                        .orElseThrow(() -> new IllegalArgumentException("Peça não encontrada"));
+
+                pecas.add(ItemPecaOS.novo(
+                        itemEstoque.getNome(),
+                        itemEstoque.getDescricao(),
+                        pecaInput.quantidade(),
+                        itemEstoque.getValor(),
+                        salva,
+                        itemEstoque
+                ));
             });
         }
 
         long valorTotalServicos = servicos.stream().mapToLong(ItemServicoOS::getValorTotal).sum();
         long valorTotalPecas = pecas.stream().mapToLong(ItemPecaOS::getValorTotal).sum();
         salva.atualizarValores(valorTotalServicos + valorTotalPecas, 0L);
+
         osRepository.salvar(salva);
 
+        servicos.forEach(itemServicoOSRepository::salvar);
+        pecas.forEach(itemPecaOSRepository::salvar);
+
         return new OrdemServicoOutput(
-            salva.getId(),
-            salva.getSituacao(),
-            salva.getDescricao(),
-            salva.getDataAberturaEm(),
-            salva.getDataFechamentoEm(),
-            salva.getValorOrcamentoTotal(),
-            salva.getValorTotalFinal(),
-            salva.getCliente().getId(),
-            salva.getVeiculo().getId()
+                salva.getId(),
+                salva.getSituacao(),
+                salva.getDescricao(),
+                salva.getDataAberturaEm(),
+                salva.getDataFechamentoEm(),
+                salva.getValorOrcamentoTotal(),
+                salva.getValorTotalFinal(),
+                salva.getCliente().getId(),
+                salva.getVeiculo().getId()
         );
     }
+
 }
