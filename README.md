@@ -28,11 +28,7 @@ A arquitetura do projeto segue os princípios da **Clean Architecture** para gar
 
 ### Infraestrutura Provisionada
 
-
-
 ### Fluxo de Deploy
-
-
 
 ---
 
@@ -57,7 +53,7 @@ Para rodar apenas os serviços de infraestrutura e a aplicação separadamente:
     mvn clean install && mvn spring-boot:run -pl infra
     ```
 
-### Provisionamento da Infraestrutura com Terraform
+### [Provisionamento da Infraestrutura com Terraform](docs/terraform/README.md)
 
 
 ### Deploy em Kubernetes
