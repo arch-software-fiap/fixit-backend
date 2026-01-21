@@ -223,12 +223,14 @@ cd terraform
 cp terraform.tfvars.example terraform.tfvars
 ```
 
-Edite o arquivo `terraform.tfvars` e preencha suas credenciais do GitHub:
+Edite o arquivo `terraform.tfvars` e preencha com as credenciais do GitHub disponíveis no PDF de entrega do projeto:
 
 ```hcl
 ghcr_username = "seu-usuario-github"
 ghcr_token    = "seu-token-github"
 ```
+
+ghcr_username pode ser "bot" ou outro de sua escolha
 
 > **Nota:** O token do GitHub deve ter permissão `read:packages` para baixar imagens do GHCR.
 
