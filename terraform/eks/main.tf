@@ -12,13 +12,9 @@ terraform {
     }
   }
 
-  backend "s3" {
-    bucket         = "fixit-terraform-state-096626747607"
-    key            = "fixit-eks/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "fixit-terraform-locks"
-    encrypt        = true
-  }
+  # Backend configurado dinamicamente via -backend-config no CI/CD
+  # Ver .github/workflows/_terraform-eks-deploy.yml
+  backend "s3" {}
 }
 
 provider "aws" {

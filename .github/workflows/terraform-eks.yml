@@ -1,18 +1,24 @@
+
 name: Terraform EKS
 
 on:
   push:
     branches:
-      - main
-    paths:
-      - 'terraform/eks/**'
-  pull_request:
-    branches:
+      - dev
+      - hmg
       - main
     paths:
       - 'terraform/eks/**'
   workflow_dispatch:
     inputs:
+      environment:
+        description: 'Ambiente alvo'
+        required: true
+        type: choice
+        options:
+          - dev
+          - hmg
+          - prod
       action:
         description: 'Ação a executar'
         required: true
@@ -23,107 +29,34 @@ on:
           - apply
           - destroy
 
-env:
-  TF_DIR: terraform/eks
-  AWS_REGION: us-east-1
-
 jobs:
-  terraform:
-    name: Terraform EKS
+  # Mapeia branch → ambiente
+  resolve-environment:
+    name: Resolver ambiente
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-
-    defaults:
-      run:
-        working-directory: ${{ env.TF_DIR }}
-
+    outputs:
+      environment: ${{ steps.resolve.outputs.environment }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Resolver ambiente pela branch
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "hmg" ]; then
+            echo "environment=hmg" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
 
-      - name: Configurar AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Instalar Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.10.0"
-
-      - name: Terraform Init
-        id: init
-        run: terraform init
-
-      - name: Terraform Format Check
-        id: fmt
-        run: terraform fmt -check -recursive
-        continue-on-error: true
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        id: plan
-        if: github.event_name == 'pull_request' || github.event.inputs.action == 'plan' || github.event_name == 'push'
-        run: terraform plan -no-color -out=tfplan
-        continue-on-error: false
-
-      - name: Comentar Plan no PR
-        uses: actions/github-script@v7
-        if: github.event_name == 'pull_request'
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' && comment.body.includes('Terraform EKS Plan')
-            );
-
-            const output = `### Terraform EKS Plan 🚀
-            #### Format: \`${{ steps.fmt.outcome }}\`
-            #### Init: \`${{ steps.init.outcome }}\`
-            #### Validate: \`${{ steps.validate.outcome }}\`
-            #### Plan: \`${{ steps.plan.outcome }}\`
-
-            <details><summary>Ver output do Plan</summary>
-
-            \`\`\`terraform
-            ${{ steps.plan.outputs.stdout }}
-            \`\`\`
-            </details>
-
-            *Commit: \`${{ github.sha }}\` | Workflow: \`${{ github.workflow }}\`*`;
-
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: output
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: output
-              });
-            }
-
-      - name: Terraform Apply
-        if: (github.ref == 'refs/heads/main' && github.event_name == 'push') || github.event.inputs.action == 'apply'
-        run: terraform apply -auto-approve tfplan
-
-      - name: Terraform Destroy
-        if: github.event.inputs.action == 'destroy'
-        run: terraform destroy -auto-approve
+  deploy:
+    name: Deploy
+    needs: resolve-environment
+    uses: ./.github/workflows/_terraform-eks-deploy.yml
+    with:
+      environment: ${{ needs.resolve-environment.outputs.environment }}
+      terraform_action: ${{ github.event.inputs.action || 'apply' }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
