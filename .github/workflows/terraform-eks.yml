@@ -1,0 +1,62 @@
+
+name: Terraform EKS
+
+on:
+  push:
+    branches:
+      - dev
+      - hmg
+      - main
+    paths:
+      - 'terraform/eks/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente alvo'
+        required: true
+        type: choice
+        options:
+          - dev
+          - hmg
+          - prod
+      action:
+        description: 'Ação a executar'
+        required: true
+        default: 'plan'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+jobs:
+  # Mapeia branch → ambiente
+  resolve-environment:
+    name: Resolver ambiente
+    runs-on: ubuntu-latest
+    outputs:
+      environment: ${{ steps.resolve.outputs.environment }}
+    steps:
+      - name: Resolver ambiente pela branch
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "environment=${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "hmg" ]; then
+            echo "environment=hmg" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+          fi
+
+  deploy:
+    name: Deploy
+    needs: resolve-environment
+    uses: ./.github/workflows/_terraform-eks-deploy.yml
+    with:
+      environment: ${{ needs.resolve-environment.outputs.environment }}
+      terraform_action: ${{ github.event.inputs.action || 'apply' }}
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
