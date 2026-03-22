@@ -1,5 +1,5 @@
 aws_region         = "us-east-1"
-cluster_name       = "fixit-eks-prod"
+cluster_name       = "production-fixit-eks"
 kubernetes_version = "1.31"
 vpc_cidr           = "10.2.0.0/16"
 
