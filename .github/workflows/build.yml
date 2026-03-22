@@ -1,10 +1,10 @@
 name: CI/CD Pipeline Java
 
 on:
-  push:
+  workflow_run:
+    workflows: [ "Terraform EKS" ]
+    types: [ completed ]
     branches: [ main, dev, hmg ]
-  pull_request:
-    branches: [ main ]
   workflow_dispatch:
 
 env:
@@ -17,6 +17,7 @@ jobs:
   tests:
     name: Tests
     runs-on: ${{ vars.RUNS_ON }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -97,7 +98,10 @@ jobs:
     name: Deploy no EKS
     runs-on: ubuntu-latest
     needs: [ containerize ]
-    environment: ${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'hmg' && 'hmg' || 'dev' }}
+    environment: >-
+      ${{ (github.event.workflow_run.head_branch == 'main' || github.ref_name == 'main') && 'prod' ||
+          (github.event.workflow_run.head_branch == 'hmg'  || github.ref_name == 'hmg')  && 'hmg'  ||
+          'dev' }}
     permissions:
       contents: read
       packages: read
@@ -108,10 +112,11 @@ jobs:
       - name: Resolver ambiente
         id: env
         run: |
-          if [ "${{ github.ref_name }}" == "main" ]; then
+          BRANCH="${{ github.event.workflow_run.head_branch || github.ref_name }}"
+          if [ "$BRANCH" == "main" ]; then
             echo "environment=prod" >> $GITHUB_OUTPUT
             echo "cluster=production-fixit-eks" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref_name }}" == "hmg" ]; then
+          elif [ "$BRANCH" == "hmg" ]; then
             echo "environment=hmg" >> $GITHUB_OUTPUT
             echo "cluster=homologation-fixit-eks" >> $GITHUB_OUTPUT
           else
