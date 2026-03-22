@@ -6,8 +6,6 @@ on:
       - dev
       - hmg
       - main
-    paths:
-      - 'terraform/eks/**'
   workflow_dispatch:
     inputs:
       environment:
