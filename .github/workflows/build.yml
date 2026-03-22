@@ -2,7 +2,7 @@ name: CI/CD Pipeline Java
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, dev, hmg ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
@@ -10,6 +10,7 @@ on:
 env:
   JAVA_VERSION: '21'
   ARTIFACT_NAME: 'app-${{ github.event.repository.name }}-${{ github.run_number }}'
+  AWS_REGION: us-east-1
 
 jobs:
 
@@ -91,3 +92,81 @@ jobs:
             ghcr.io/${{ github.repository }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy no EKS
+    runs-on: ubuntu-latest
+    needs: [ containerize ]
+    environment: ${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'hmg' && 'hmg' || 'dev' }}
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolver ambiente
+        id: env
+        run: |
+          if [ "${{ github.ref_name }}" == "main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+            echo "cluster=production-fixit-eks" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref_name }}" == "hmg" ]; then
+            echo "environment=hmg" >> $GITHUB_OUTPUT
+            echo "cluster=homologation-fixit-eks" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+            echo "cluster=development-fixit-eks" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configurar kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ steps.env.outputs.cluster }}
+
+      - name: Criar namespace
+        run: kubectl apply -f .k8s/namespace.yml
+
+      - name: Criar Secret GHCR
+        run: |
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            -n fixit \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Criar Secret da aplicacao
+        run: |
+          kubectl create secret generic fixit-backend-secret \
+            --from-literal=SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
+            --from-literal=SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+            --from-literal=SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+            --from-literal=LOGGING_LEVEL=INFO \
+            -n fixit \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy fixit-backend
+        run: |
+          kubectl apply -f .k8s/fixit-backend/deployment.yml
+          kubectl apply -f .k8s/fixit-backend/service.yml
+          kubectl apply -f .k8s/fixit-backend/hpa.yml
+          kubectl apply -f .k8s/fixit-backend/ingress.yml
+
+      - name: Atualizar imagem com SHA do commit
+        run: |
+          kubectl set image deployment/fixit-backend \
+            fixit-backend=ghcr.io/${{ github.repository }}:${{ github.sha }} \
+            -n fixit
+
+      - name: Aguardar rollout
+        run: |
+          kubectl rollout status deployment/fixit-backend -n fixit --timeout=300s

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fixit-backend
+  namespace: fixit
+  labels:
+    app: fixit-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fixit-backend
+  template:
+    metadata:
+      labels:
+        app: fixit-backend
+    spec:
+      containers:
+        - name: fixit-backend
+          image: ghcr.io/arch-software-fiap/fixit-backend:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: KEYCLOAK_SERVER_URL
+              value: "http://keycloak.fixit.svc.cluster.local:8080"
+          envFrom:
+            - secretRef:
+                name: fixit-backend-secret
+          resources:
+            requests:
+              cpu: 125m
+              memory: 512Mi
+            limits:
+              memory: 1024Mi
+          readinessProbe:
+            httpGet:
+              path: /fixit-backend/actuator/health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /fixit-backend/actuator/health
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 30
+            failureThreshold: 3
+      imagePullSecrets:
+        - name: ghcr-secret
