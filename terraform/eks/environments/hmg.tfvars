@@ -1,0 +1,16 @@
+aws_region         = "us-east-1"
+cluster_name       = "homologation-fixit-eks"
+kubernetes_version = "1.31"
+vpc_cidr           = "10.1.0.0/16"
+
+node_instance_type = "t3.medium"
+node_capacity_type = "SPOT"
+node_desired_size  = 1
+node_min_size      = 1
+node_max_size      = 3
+
+common_tags = {
+  Project     = "fixit"
+  Environment = "hmg"
+  ManagedBy   = "terraform"
+}
