@@ -1,10 +1,6 @@
 name: CI/CD Pipeline Java
 
 on:
-  workflow_run:
-    workflows: [ "Terraform EKS" ]
-    types: [ completed ]
-    branches: [ main, dev, hmg ]
   workflow_dispatch:
 
 env:
@@ -17,7 +13,6 @@ jobs:
   tests:
     name: Tests
     runs-on: ${{ vars.RUNS_ON }}
-    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
 
     steps:
       - uses: actions/checkout@v4
