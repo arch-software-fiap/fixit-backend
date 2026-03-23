@@ -4,6 +4,7 @@ import com.fix_it.core.domain.entity.OrdemServico;
 import com.fix_it.usecase.ordemservico.ConsultarAcompanhamentoUseCase;
 import com.fix_it.usecase.ordemservico.output.AcompanhamentoOSOutput;
 import com.fix_it.usecase.port.OrdemServicoRepository;
+
 import java.util.UUID;
 
 public class ConsultarAcompanhamentoUseCaseImpl implements ConsultarAcompanhamentoUseCase {
@@ -15,12 +16,12 @@ public class ConsultarAcompanhamentoUseCaseImpl implements ConsultarAcompanhamen
     }
 
     @Override
-    public AcompanhamentoOSOutput executar(UUID osId, String cpfCnpj) {
+    public AcompanhamentoOSOutput executar(UUID osId, String cpfCnpjClienteAutenticado) {
         OrdemServico os = repository.buscarPorId(osId)
             .orElseThrow(() -> new IllegalArgumentException("OS não encontrada"));
 
-        if (!os.getCliente().getCpfCnpj().equals(cpfCnpj)) {
-            throw new IllegalArgumentException("Documento não confere com a OS informada");
+        if (!os.getCliente().getCpfCnpj().equals(cpfCnpjClienteAutenticado)) {
+            throw new IllegalArgumentException("Cliente autenticado não possui acesso a esta OS");
         }
 
         return new AcompanhamentoOSOutput(

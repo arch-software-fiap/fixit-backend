@@ -28,7 +28,8 @@ public class CriarClienteUseCaseImpl implements CriarClienteUseCase {
                 input.nome(),
                 input.cpfCnpj(),
                 input.email(),
-                input.telefone()
+                input.telefone(),
+                input.dtNascimento()
         ));
     }
 }

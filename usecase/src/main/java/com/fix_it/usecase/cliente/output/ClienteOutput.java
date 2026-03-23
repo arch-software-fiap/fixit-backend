@@ -10,6 +10,7 @@ public record ClienteOutput(
         String cpfCnpj,
         String email,
         String telefone,
+        LocalDate dtNascimento,
         LocalDate dtCadastro,
         LocalDateTime dthAtualizacao
 ) {

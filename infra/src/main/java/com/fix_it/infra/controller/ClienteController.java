@@ -3,14 +3,26 @@ package com.fix_it.infra.controller;
 import com.fix_it.infra.controller.dto.ClienteRequest;
 import com.fix_it.infra.controller.dto.ClienteResponse;
 import com.fix_it.infra.controller.mapper.ClienteApiMapper;
-import com.fix_it.usecase.cliente.*;
+import com.fix_it.usecase.cliente.AtualizarClienteUseCase;
+import com.fix_it.usecase.cliente.BuscarClientePorDocumentoUseCase;
+import com.fix_it.usecase.cliente.BuscarClientePorIdUseCase;
+import com.fix_it.usecase.cliente.CriarClienteUseCase;
+import com.fix_it.usecase.cliente.ListarClientesUseCase;
+import com.fix_it.usecase.cliente.RemoverClienteUseCase;
 import com.fix_it.usecase.cliente.input.AtualizarClienteInput;
 import com.fix_it.usecase.cliente.input.CriarClienteInput;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
@@ -36,7 +48,8 @@ public class ClienteController {
                 request.nome(),
                 request.cpfCnpj(),
                 request.email(),
-                request.telefone()
+                request.telefone(),
+                request.dtNascimento()
         );
 
         var cliente = criarClienteUseCase.execute(input);
@@ -55,7 +68,8 @@ public class ClienteController {
                 request.nome(),
                 request.cpfCnpj(),
                 request.email(),
-                request.telefone()
+                request.telefone(),
+                request.dtNascimento()
         );
 
         var cliente = atualizarClienteUseCase.execute(input);

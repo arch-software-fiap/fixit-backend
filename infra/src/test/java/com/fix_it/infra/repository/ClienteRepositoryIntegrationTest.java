@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,6 +31,7 @@ class ClienteRepositoryIntegrationTest extends RepositoryTestBase {
         clienteExistente.setCpfCnpj("12345678901");
         clienteExistente.setEmail("joao@email.com");
         clienteExistente.setTelefone("11999999999");
+        clienteExistente.setDtNascimento(LocalDate.of(1990, 1, 1));
         clienteExistente = clienteRepository.save(clienteExistente);
     }
 
@@ -45,12 +47,14 @@ class ClienteRepositoryIntegrationTest extends RepositoryTestBase {
             novoCliente.setCpfCnpj("98765432100");
             novoCliente.setEmail("maria@email.com");
             novoCliente.setTelefone("11888888888");
+            novoCliente.setDtNascimento(LocalDate.of(1992, 2, 2));
 
             ClienteEntity clienteSalvo = clienteRepository.save(novoCliente);
 
             assertThat(clienteSalvo.getId()).isNotNull();
             assertThat(clienteSalvo.getNome()).isEqualTo("Maria Santos");
             assertThat(clienteSalvo.getCpfCnpj()).isEqualTo("98765432100");
+            assertThat(clienteSalvo.getDtNascimento()).isEqualTo(LocalDate.of(1992, 2, 2));
             assertThat(clienteSalvo.getDtCadastro()).isNotNull();
             assertThat(clienteSalvo.getDthAtualizacao()).isNotNull();
         }
@@ -60,11 +64,13 @@ class ClienteRepositoryIntegrationTest extends RepositoryTestBase {
         void deveAtualizarClienteExistente() {
             clienteExistente.setNome("João Silva Atualizado");
             clienteExistente.setEmail("joao.atualizado@email.com");
+            clienteExistente.setDtNascimento(LocalDate.of(1991, 1, 1));
 
             ClienteEntity clienteAtualizado = clienteRepository.save(clienteExistente);
 
             assertThat(clienteAtualizado.getNome()).isEqualTo("João Silva Atualizado");
             assertThat(clienteAtualizado.getEmail()).isEqualTo("joao.atualizado@email.com");
+            assertThat(clienteAtualizado.getDtNascimento()).isEqualTo(LocalDate.of(1991, 1, 1));
         }
 
         @Test
@@ -107,6 +113,7 @@ class ClienteRepositoryIntegrationTest extends RepositoryTestBase {
 
             assertThat(clienteEncontrado).isPresent();
             assertThat(clienteEncontrado.get().getNome()).isEqualTo("João Silva");
+            assertThat(clienteEncontrado.get().getDtNascimento()).isEqualTo(LocalDate.of(1990, 1, 1));
         }
 
         @Test
@@ -124,6 +131,7 @@ class ClienteRepositoryIntegrationTest extends RepositoryTestBase {
             outroCliente.setNome("Pedro Souza");
             outroCliente.setCpfCnpj("11122233344");
             outroCliente.setEmail("pedro@email.com");
+            outroCliente.setDtNascimento(LocalDate.of(1988, 8, 8));
             clienteRepository.save(outroCliente);
 
             var clientes = clienteRepository.findAll();
