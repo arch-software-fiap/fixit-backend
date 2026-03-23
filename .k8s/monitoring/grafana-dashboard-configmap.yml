@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fixit-backend-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  fixit-backend.json: |
+    {
+      "title": "fixit-backend",
+      "uid": "fixit-backend",
+      "schemaVersion": 36,
+      "version": 1,
+      "refresh": "30s",
+      "time": { "from": "now-6h", "to": "now" },
+      "panels": [
+        {
+          "id": 1,
+          "title": "Taxa de Requisicoes HTTP (req/s)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{job=\"fixit-backend\"}[2m])) by (uri, status)",
+              "legendFormat": "{{uri}} [{{status}}]",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "title": "Latencia HTTP P99 (segundos)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"fixit-backend\"}[5m])) by (le, uri))",
+              "legendFormat": "P99 {{uri}}",
+              "refId": "A"
+            },
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"fixit-backend\"}[5m])) by (le, uri))",
+              "legendFormat": "P50 {{uri}}",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "title": "Ordens de Servico Criadas (total acumulado)",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
+          "targets": [
+            {
+              "expr": "sum(ordens_servico_criadas_total)",
+              "legendFormat": "OS Criadas",
+              "refId": "A"
+            }
+          ],
+          "options": { "reduceOptions": { "calcs": ["lastNotNull"] } }
+        },
+        {
+          "id": 4,
+          "title": "OS Criadas por Dia",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
+          "targets": [
+            {
+              "expr": "increase(ordens_servico_criadas_total[24h])",
+              "legendFormat": "OS/dia",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "title": "Transicoes de Status de OS",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
+          "targets": [
+            {
+              "expr": "sum(increase(ordens_servico_status_total[1h])) by (status)",
+              "legendFormat": "{{status}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Tempo Medio de Criacao de OS (ms)",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+          "targets": [
+            {
+              "expr": "rate(ordens_servico_criacao_duracao_segundos_sum[5m]) / rate(ordens_servico_criacao_duracao_segundos_count[5m]) * 1000",
+              "legendFormat": "Tempo medio (ms)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "title": "JVM Heap Usage",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+          "targets": [
+            {
+              "expr": "jvm_memory_used_bytes{job=\"fixit-backend\", area=\"heap\"}",
+              "legendFormat": "Heap Usado",
+              "refId": "A"
+            },
+            {
+              "expr": "jvm_memory_max_bytes{job=\"fixit-backend\", area=\"heap\"}",
+              "legendFormat": "Heap Max",
+              "refId": "B"
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "title": "CPU Usage - Pod fixit-backend",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
+          "targets": [
+            {
+              "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"fixit\", pod=~\"fixit-backend.*\", container!=\"\"}[2m]))",
+              "legendFormat": "CPU (cores)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "Memory Usage - Pod fixit-backend",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"fixit\", pod=~\"fixit-backend.*\", container!=\"\"})",
+              "legendFormat": "Memoria (bytes)",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "title": "Erros HTTP 5xx por Endpoint",
+          "type": "timeseries",
+          "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
+          "targets": [
+            {
+              "expr": "sum(rate(http_server_requests_seconds_count{job=\"fixit-backend\", status=~\"5..\"}[5m])) by (uri)",
+              "legendFormat": "5xx {{uri}}",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "title": "Pod Restarts - namespace fixit",
+          "type": "stat",
+          "gridPos": { "h": 4, "w": 6, "x": 12, "y": 36 },
+          "targets": [
+            {
+              "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"fixit\"}) by (pod)",
+              "legendFormat": "{{pod}}",
+              "refId": "A"
+            }
+          ]
+        }
+      ]
+    }

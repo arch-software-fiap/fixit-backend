@@ -3,6 +3,8 @@ kind: Service
 metadata:
   name: fixit-backend
   namespace: fixit
+  labels:
+    app: fixit-backend
 spec:
   selector:
     app: fixit-backend

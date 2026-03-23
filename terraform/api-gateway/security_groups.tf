@@ -37,3 +37,13 @@ resource "aws_vpc_security_group_ingress_rule" "nodes_keycloak_nodeport" {
   cidr_ipv4         = data.aws_vpc.fixit.cidr_block
   description       = "NLB to keycloak NodePort 30085"
 }
+
+# Libera NodePort do Grafana nos nodes EKS via NLB
+resource "aws_vpc_security_group_ingress_rule" "nodes_grafana_nodeport" {
+  security_group_id = data.aws_security_group.eks_nodes.id
+  ip_protocol       = "tcp"
+  from_port         = 30300
+  to_port           = 30300
+  cidr_ipv4         = data.aws_vpc.fixit.cidr_block
+  description       = "NLB to Grafana NodePort 30300"
+}

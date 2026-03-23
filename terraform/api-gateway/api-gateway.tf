@@ -74,6 +74,35 @@ resource "aws_apigatewayv2_route" "keycloak" {
   target    = "integrations/${aws_apigatewayv2_integration.keycloak.id}"
 }
 
+# Integração com Grafana via VPC Link → NLB porta 3000
+resource "aws_apigatewayv2_integration" "grafana" {
+  api_id             = aws_apigatewayv2_api.fixit.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.grafana.arn
+
+  connection_type = "VPC_LINK"
+  connection_id   = aws_apigatewayv2_vpc_link.fixit.id
+
+  request_parameters = {
+    "overwrite:path" = "/$request.path.proxy"
+  }
+}
+
+# Rota: ANY /grafana/{proxy+} → Grafana
+resource "aws_apigatewayv2_route" "grafana" {
+  api_id    = aws_apigatewayv2_api.fixit.id
+  route_key = "ANY /grafana/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.grafana.id}"
+}
+
+# Rota: ANY /grafana → Grafana (raiz sem trailing slash)
+resource "aws_apigatewayv2_route" "grafana_root" {
+  api_id    = aws_apigatewayv2_api.fixit.id
+  route_key = "ANY /grafana"
+  target    = "integrations/${aws_apigatewayv2_integration.grafana.id}"
+}
+
 # Stage de deploy (auto-deploy ativo)
 resource "aws_apigatewayv2_stage" "fixit" {
   api_id      = aws_apigatewayv2_api.fixit.id
