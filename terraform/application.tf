@@ -5,11 +5,13 @@ resource "kubernetes_secret" "app_secrets" {
   }
 
   data = {
-    SPRING_DATASOURCE_URL      = "jdbc:postgresql://postgres:5432/${var.postgres_db}"
-    SPRING_DATASOURCE_USERNAME = var.postgres_user
-    SPRING_DATASOURCE_PASSWORD = var.postgres_password
-    KEYCLOAK_SERVER_URL        = "http://keycloak:8080"
-    LOGGING_LEVEL              = var.logging_level
+    SPRING_DATASOURCE_URL             = "jdbc:postgresql://postgres:5432/${var.postgres_db}"
+    SPRING_DATASOURCE_USERNAME        = var.postgres_user
+    SPRING_DATASOURCE_PASSWORD        = var.postgres_password
+    KEYCLOAK_SERVER_URL               = "http://keycloak:8080"
+    LOGGING_LEVEL                     = var.logging_level
+    FIXIT_EXTERNAL_AUTH_SHARED_SECRET = var.fixit_external_auth_shared_secret
+    FIXIT_GATEWAY_LAMBDA_URL          = var.fixit_gateway_lambda_url
   }
 
   type = "Opaque"

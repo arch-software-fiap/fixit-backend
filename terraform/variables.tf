@@ -60,6 +60,17 @@ variable "logging_level" {
   default     = "INFO"
 }
 
+variable "fixit_external_auth_shared_secret" {
+  description = "Segredo compartilhado usado para validar o JWT do serviço externo de autenticação"
+  type        = string
+  sensitive   = true
+}
+
+variable "fixit_gateway_lambda_url" {
+  description = "URL do serviço externo de autenticação responsável por gerar o token público"
+  type        = string
+}
+
 variable "ghcr_username" {
   description = "Username do GitHub Container Registry"
   type        = string
