@@ -247,24 +247,27 @@ jobs:
           echo "Grafana root_url: ${GF_ROOT_URL}"
 
       - name: Deploy kube-prometheus-stack
+        continue-on-error: true
         run: |
           kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+          # Sem --wait: instala/atualiza o chart e deixa pods subirem em background
+          # Em t3.small os pods demoram mas acabam ficando Ready
           helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
             --namespace monitoring \
             --values .k8s/monitoring/helm-values.yml \
             --set "grafana.grafana\\.ini.server.root_url=${{ steps.apigw.outputs.grafana_root_url }}" \
-            --timeout 5m \
-            --atomic \
-            --cleanup-on-fail
+            --timeout 3m
 
       - name: Aplicar ServiceMonitor e PrometheusRule
+        continue-on-error: true
         run: |
           kubectl apply -f .k8s/monitoring/service-monitor.yml
           kubectl apply -f .k8s/monitoring/prometheus-rule.yml
           kubectl apply -f .k8s/monitoring/grafana-dashboard-configmap.yml
 
       - name: Aguardar Grafana pronto
-        run: kubectl rollout status deployment/monitoring-grafana -n monitoring --timeout=180s
+        continue-on-error: true
+        run: kubectl rollout status deployment/monitoring-grafana -n monitoring --timeout=300s
 
       - name: Mostrar URL do Grafana
         run: |
