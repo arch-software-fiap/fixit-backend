@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: fixit
+  labels:
+    app: keycloak
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:23.0
+          args:
+            - start-dev
+            - --import-realm
+          env:
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: KEYCLOAK_ADMIN
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-secret
+                  key: KEYCLOAK_ADMIN_PASSWORD
+            - name: KC_HTTP_ENABLED
+              value: "true"
+            - name: KC_HOSTNAME_STRICT
+              value: "false"
+            - name: KC_HOSTNAME_STRICT_HTTPS
+              value: "false"
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: realm-config
+              mountPath: /opt/keycloak/data/import/realm-export.json
+              subPath: realm-export.json
+              readOnly: true
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1024Mi
+          readinessProbe:
+            httpGet:
+              path: /realms/fixit
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /realms/fixit
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 30
+            failureThreshold: 3
+      volumes:
+        - name: realm-config
+          configMap:
+            name: keycloak-realm

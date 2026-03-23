@@ -1,0 +1,104 @@
+name: Terraform API Gateway
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente alvo'
+        required: true
+        type: choice
+        options:
+          - dev
+          - hmg
+          - prod
+      action:
+        description: 'Acao a executar'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+env:
+  TF_DIR: terraform/api-gateway
+  AWS_REGION: us-east-1
+  TF_BUCKET: fixit-terraform-state-096626747607
+  TF_DYNAMODB_TABLE: fixit-terraform-locks
+
+jobs:
+  terraform:
+    name: "Terraform API Gateway"
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'dev' }}
+    permissions:
+      contents: read
+
+    defaults:
+      run:
+        working-directory: ${{ env.TF_DIR }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolver ambiente
+        id: env
+        run: |
+          ENV="${{ github.event.inputs.environment || 'dev' }}"
+          ACTION="${{ github.event.inputs.action || 'apply' }}"
+          echo "environment=$ENV" >> $GITHUB_OUTPUT
+          echo "action=$ACTION" >> $GITHUB_OUTPUT
+          echo "Ambiente: $ENV | Acao: $ACTION"
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.TF_BUCKET }}" \
+            -backend-config="key=fixit-api-gateway/${{ steps.env.outputs.environment }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+        continue-on-error: true
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        run: |
+          terraform plan \
+            -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
+            -no-color \
+            -out=tfplan
+
+      - name: Terraform Apply
+        if: steps.env.outputs.action == 'apply'
+        run: terraform apply -auto-approve tfplan
+
+      - name: Mostrar outputs
+        if: steps.env.outputs.action == 'apply'
+        run: terraform output
+
+      - name: Terraform Destroy
+        if: steps.env.outputs.action == 'destroy'
+        run: |
+          terraform destroy \
+            -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
+            -auto-approve

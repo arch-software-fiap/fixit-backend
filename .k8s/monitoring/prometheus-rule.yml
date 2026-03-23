@@ -1,0 +1,83 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: fixit-backend-alerts
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: fixit-backend.availability
+      interval: 60s
+      rules:
+        - alert: FixitBackendDown
+          expr: up{job="fixit-backend"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "fixit-backend indisponivel"
+            description: "O pod fixit-backend nao esta respondendo ao scrape do Prometheus por mais de 2 minutos."
+
+        - alert: FixitBackendHighErrorRate
+          expr: |
+            sum(rate(http_server_requests_seconds_count{job="fixit-backend", status=~"5.."}[5m]))
+            /
+            sum(rate(http_server_requests_seconds_count{job="fixit-backend"}[5m])) > 0.05
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Taxa de erros 5xx acima de 5%"
+            description: "Taxa de erros HTTP 5xx no fixit-backend esta acima de 5% nos ultimos 5 minutos."
+
+        - alert: FixitBackendHighLatency
+          expr: |
+            histogram_quantile(0.99,
+              sum(rate(http_server_requests_seconds_bucket{job="fixit-backend"}[5m])) by (le, uri)
+            ) > 2
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Latencia P99 acima de 2s"
+            description: "Latencia P99 do fixit-backend esta acima de 2 segundos nos ultimos 5 minutos."
+
+    - name: fixit-backend.ordens-servico
+      interval: 60s
+      rules:
+        - alert: OrdemServicoAltaTaxaFalha
+          expr: |
+            increase(ordens_servico_status_total{status="RECEBIDA"}[1h]) == 0
+            and
+            increase(ordens_servico_criadas_total[1h]) > 10
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Nenhuma OS transitando de RECEBIDA"
+            description: "Mais de 10 OS foram criadas na ultima hora mas nenhuma mudou de status RECEBIDA."
+
+    - name: fixit-backend.resources
+      interval: 60s
+      rules:
+        - alert: FixitBackendHighMemory
+          expr: |
+            jvm_memory_used_bytes{job="fixit-backend", area="heap"}
+            /
+            jvm_memory_max_bytes{job="fixit-backend", area="heap"} > 0.85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Uso de heap JVM acima de 85%"
+            description: "O fixit-backend esta usando mais de 85% da heap JVM por mais de 10 minutos."
+
+        - alert: FixitBackendPodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="fixit", pod=~"fixit-backend.*"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Pod fixit-backend em crash loop"
+            description: "O pod fixit-backend reiniciou nos ultimos 15 minutos."

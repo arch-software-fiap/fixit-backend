@@ -38,6 +38,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      action: ${{ steps.env.outputs.action }}
 
     defaults:
       run:
@@ -113,3 +116,214 @@ jobs:
           terraform destroy \
             -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
             -auto-approve
+
+  deploy-keycloak:
+    name: "Deploy Keycloak"
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configurar kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ needs.terraform.outputs.environment == 'prod' && 'production-fixit-eks' || needs.terraform.outputs.environment == 'hmg' && 'homologation-fixit-eks' || 'development-fixit-eks' }}
+
+      - name: Limpar namespace monitoring (liberar memoria no no)
+        run: |
+          # Deleta o namespace inteiro para garantir que nenhum pod de install
+          # anterior fique consumindo memoria no t3.small
+          if kubectl get namespace monitoring &>/dev/null; then
+            echo "Removendo namespace monitoring completo..."
+            helm uninstall monitoring -n monitoring 2>/dev/null || true
+            kubectl delete namespace monitoring --grace-period=0 2>/dev/null || true
+            echo "Aguardando namespace ser removido..."
+            kubectl wait --for=delete namespace/monitoring --timeout=60s 2>/dev/null || true
+            echo "Namespace removido — memoria liberada"
+          else
+            echo "Namespace monitoring nao existe — nada a limpar"
+          fi
+
+      - name: Criar namespace
+        run: kubectl apply -f .k8s/namespace.yml
+
+      - name: Criar ConfigMap do Realm
+        run: |
+          kubectl create configmap keycloak-realm \
+            --from-file=realm-export.json=.docker/keycloak/realm-export.json \
+            -n fixit \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Criar Secret do Keycloak
+        run: |
+          kubectl create secret generic keycloak-secret \
+            --from-literal=KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }} \
+            --from-literal=KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
+            -n fixit \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Keycloak
+        run: |
+          kubectl apply -f .k8s/keycloak/deployment.yml
+          kubectl apply -f .k8s/keycloak/service.yml
+
+      - name: Aguardar Keycloak pronto
+        run: |
+          kubectl rollout status deployment/keycloak -n fixit --timeout=300s
+
+      - name: Inicializar senha do usuario Keycloak
+        run: |
+          kubectl port-forward svc/keycloak 18080:8080 -n fixit &
+          PF_PID=$!
+          sleep 8
+
+          ADMIN_TOKEN=$(curl -s -X POST \
+            "http://localhost:18080/realms/master/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=password&client_id=admin-cli&username=${{ secrets.KEYCLOAK_ADMIN }}&password=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+
+          USER_ID=$(curl -s \
+            "http://localhost:18080/admin/realms/fixit/users?username=user" \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            | python3 -c "import sys,json; u=json.load(sys.stdin); print(u[0]['id'] if u else '')")
+
+          curl -s -X PUT \
+            "http://localhost:18080/admin/realms/fixit/users/$USER_ID/reset-password" \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"type":"password","value":"${{ secrets.KEYCLOAK_USER_PASSWORD }}","temporary":false}' \
+            -w "HTTP reset-password: %{http_code}\n"
+
+          kill $PF_PID 2>/dev/null || true
+
+  deploy-monitoring:
+    name: "Deploy Monitoring (Prometheus + Grafana)"
+    runs-on: ubuntu-latest
+    needs: [ terraform, deploy-keycloak ]
+    if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configurar kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ needs.terraform.outputs.environment == 'prod' && 'production-fixit-eks' || needs.terraform.outputs.environment == 'hmg' && 'homologation-fixit-eks' || 'development-fixit-eks' }}
+
+      - name: Instalar Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.14.0"
+
+      - name: Adicionar repositorio kube-prometheus-stack
+        run: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
+
+      - name: Obter URL do API Gateway (para Grafana root_url)
+        id: apigw
+        run: |
+          ENV="${{ needs.terraform.outputs.environment }}"
+          API_GW_URL=$(aws apigatewayv2 get-apis \
+            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
+            --output text 2>/dev/null || echo "")
+          if [ -n "$API_GW_URL" ] && [ "$API_GW_URL" != "None" ]; then
+            GF_ROOT_URL="${API_GW_URL}/${ENV}/grafana/"
+          else
+            GF_ROOT_URL="%(protocol)s://%(domain)s:%(http_port)s/grafana/"
+          fi
+          echo "grafana_root_url=${GF_ROOT_URL}" >> $GITHUB_OUTPUT
+          echo "API Gateway URL: ${API_GW_URL}"
+          echo "Grafana root_url: ${GF_ROOT_URL}"
+
+      - name: Limpar release anterior com falha
+        continue-on-error: true
+        run: |
+          # Remove release com falha para evitar pods zumbis que consomem memoria no t3.small
+          STATUS=$(helm status monitoring -n monitoring -o json 2>/dev/null | python3 -c "import sys,json; print(json.load(sys.stdin).get('info',{}).get('status',''))" 2>/dev/null || echo "")
+          if [ "$STATUS" = "failed" ] || [ "$STATUS" = "pending-install" ] || [ "$STATUS" = "pending-upgrade" ]; then
+            echo "Release com status '$STATUS' encontrada — removendo antes do re-install"
+            helm uninstall monitoring -n monitoring --wait=false 2>/dev/null || true
+            # Aguarda pods serem removidos para liberar memoria no no
+            kubectl delete pods -n monitoring --all --grace-period=0 --force 2>/dev/null || true
+            sleep 10
+          else
+            echo "Nenhuma release com falha encontrada (status: '${STATUS:-nao existe}')"
+          fi
+
+      - name: Deploy kube-prometheus-stack
+        continue-on-error: true
+        run: |
+          kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+          # Sem --wait: instala/atualiza o chart e sai imediatamente
+          # Pods sobem em background — nao bloqueia o pipeline
+          helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+            --namespace monitoring \
+            --values .k8s/monitoring/helm-values.yml \
+            --set "grafana.grafana\\.ini.server.root_url=${{ steps.apigw.outputs.grafana_root_url }}" \
+            --timeout 3m
+
+      - name: Aplicar ServiceMonitor e PrometheusRule
+        continue-on-error: true
+        run: |
+          kubectl apply -f .k8s/monitoring/service-monitor.yml
+          kubectl apply -f .k8s/monitoring/prometheus-rule.yml
+          kubectl apply -f .k8s/monitoring/grafana-dashboard-configmap.yml
+
+      - name: Aguardar Grafana pronto
+        continue-on-error: true
+        run: kubectl rollout status deployment/monitoring-grafana -n monitoring --timeout=300s
+
+      - name: Mostrar URL do Grafana
+        run: |
+          ENV="${{ needs.terraform.outputs.environment }}"
+          API_GW_URL=$(aws apigatewayv2 get-apis \
+            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
+            --output text 2>/dev/null || echo "pendente")
+          echo "Grafana: ${API_GW_URL}/${ENV}/grafana/"
+          echo "Login: admin / fixit-admin"
+
+  trigger-app-deploy:
+    name: "Disparar Deploy da Aplicacao"
+    runs-on: ubuntu-latest
+    needs: [ terraform, deploy-keycloak ]
+    if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Disparar CI/CD Pipeline Java
+        run: |
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GHCR_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/build.yml/dispatches" \
+            -d "{\"ref\":\"${{ github.ref_name }}\"}" \
+            -w "HTTP: %{http_code}\n"
