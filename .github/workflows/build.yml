@@ -180,10 +180,20 @@ jobs:
           (github.event.workflow_run.head_branch == 'hmg'  || github.ref_name == 'hmg')  && 'hmg'  ||
           'dev' }}
     permissions:
-      actions: write
       contents: read
 
+    env:
+      TF_DIR: terraform/api-gateway
+      TF_BUCKET: fixit-terraform-state-096626747607
+      TF_DYNAMODB_TABLE: fixit-terraform-locks
+
+    defaults:
+      run:
+        working-directory: terraform/api-gateway
+
     steps:
+      - uses: actions/checkout@v4
+
       - name: Resolver ambiente
         id: env
         run: |
@@ -196,11 +206,33 @@ jobs:
             echo "environment=dev" >> $GITHUB_OUTPUT
           fi
 
-      - name: Disparar Terraform API Gateway
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+
+      - name: Terraform Init
         run: |
-          curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GHCR_PAT }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/api-gateway.yml/dispatches" \
-            -d "{\"ref\":\"${{ github.ref_name }}\",\"inputs\":{\"environment\":\"${{ steps.env.outputs.environment }}\",\"action\":\"apply\"}}" \
-            -w "HTTP: %{http_code}\n"
+          terraform init \
+            -backend-config="bucket=${{ env.TF_BUCKET }}" \
+            -backend-config="key=fixit-api-gateway/${{ steps.env.outputs.environment }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Apply
+        run: |
+          terraform apply \
+            -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
+            -auto-approve \
+            -no-color
+
+      - name: Mostrar URL do API Gateway
+        run: terraform output api_gateway_url
