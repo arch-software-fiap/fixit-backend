@@ -1,4 +1,4 @@
-## kube-prometheus-stack Helm values
+## kube-prometheus-stack Helm values — perfil slim para t3.small (2GB RAM)
 ## https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 
 grafana:
@@ -11,15 +11,27 @@ grafana:
   grafana.ini:
     server:
       serve_from_sub_path: "true"
-      # root_url is set dynamically via --set during helm install
+      # root_url e definido dinamicamente via --set durante o helm install
   sidecar:
     dashboards:
       enabled: true
       label: grafana_dashboard
       labelValue: "1"
       searchNamespace: ALL
+    resources:
+      requests:
+        cpu: 50m
+        memory: 64Mi
+      limits:
+        memory: 128Mi
   persistence:
     enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
 
 prometheus:
   prometheusSpec:
@@ -27,50 +39,65 @@ prometheus:
     serviceMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelector: {}
     serviceMonitorNamespaceSelector: {}
-    retention: 15d
+    retention: 7d
     resources:
       requests:
-        cpu: 200m
-        memory: 512Mi
+        cpu: 100m
+        memory: 256Mi
       limits:
-        memory: 1Gi
+        memory: 512Mi
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+  admissionWebhooks:
+    enabled: false
+    patch:
+      enabled: false
+  tls:
+    enabled: false
 
 alertmanager:
   enabled: false
 
+# Desabilitados em dev (t3.small nao tem recursos suficientes)
 nodeExporter:
-  enabled: true
+  enabled: false
 
 kubeStateMetrics:
-  enabled: true
+  enabled: false
 
 defaultRules:
   create: true
   rules:
     alertmanager: false
     etcd: false
-    configReloaders: true
+    configReloaders: false
     general: true
-    k8s: true
+    k8s: false
     kubeApiserverAvailability: false
     kubeApiserverBurnrate: false
     kubeApiserverHistogram: false
     kubeApiserverSlos: false
     kubeControllerManager: false
-    kubelet: true
+    kubelet: false
     kubeProxy: false
     kubePrometheusGeneral: true
-    kubePrometheusNodeRecording: true
+    kubePrometheusNodeRecording: false
     kubernetesApps: true
-    kubernetesResources: true
-    kubernetesStorage: true
-    kubernetesSystem: true
+    kubernetesResources: false
+    kubernetesStorage: false
+    kubernetesSystem: false
     kubeSchedulerAlerting: false
     kubeSchedulerRecording: false
-    kubeStateMetrics: true
-    network: true
-    node: true
-    nodeExporterAlerting: true
-    nodeExporterRecording: true
+    kubeStateMetrics: false
+    network: false
+    node: false
+    nodeExporterAlerting: false
+    nodeExporterRecording: false
     prometheus: true
     prometheusOperator: false

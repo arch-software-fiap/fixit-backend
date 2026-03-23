@@ -253,8 +253,9 @@ jobs:
             --namespace monitoring \
             --values .k8s/monitoring/helm-values.yml \
             --set "grafana.grafana\\.ini.server.root_url=${{ steps.apigw.outputs.grafana_root_url }}" \
-            --timeout 10m \
-            --wait
+            --timeout 5m \
+            --atomic \
+            --cleanup-on-fail
 
       - name: Aplicar ServiceMonitor e PrometheusRule
         run: |
@@ -263,7 +264,7 @@ jobs:
           kubectl apply -f .k8s/monitoring/grafana-dashboard-configmap.yml
 
       - name: Aguardar Grafana pronto
-        run: kubectl rollout status deployment/monitoring-grafana -n monitoring --timeout=300s
+        run: kubectl rollout status deployment/monitoring-grafana -n monitoring --timeout=180s
 
       - name: Mostrar URL do Grafana
         run: |
