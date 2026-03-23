@@ -117,7 +117,7 @@ resource "aws_lb_target_group" "grafana" {
   health_check {
     enabled             = true
     protocol            = "HTTP"
-    path                = "/grafana/api/health"
+    path                = "/${var.environment}/grafana/api/health"
     port                = "30300"
     healthy_threshold   = 2
     unhealthy_threshold = 2

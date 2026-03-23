@@ -75,7 +75,9 @@ resource "aws_apigatewayv2_route" "keycloak" {
 }
 
 # Integração com Grafana via VPC Link → NLB porta 3000
-# serve_from_sub_path=true: Grafana serve tudo em /grafana/* — manter prefixo no path
+# O API GW stripa o prefixo de stage (/dev/, /hmg/) antes de rotear.
+# Grafana com serve_from_sub_path=true precisa receber o path COMPLETO incluindo stage.
+# Solução: reconstruir o path completo com var.environment no overwrite:path.
 resource "aws_apigatewayv2_integration" "grafana" {
   api_id             = aws_apigatewayv2_api.fixit.id
   integration_type   = "HTTP_PROXY"
@@ -86,12 +88,13 @@ resource "aws_apigatewayv2_integration" "grafana" {
   connection_id   = aws_apigatewayv2_vpc_link.fixit.id
 
   request_parameters = {
-    # Mantém /grafana/ no path: /grafana/login → Grafana recebe /grafana/login
-    "overwrite:path" = "/grafana/$request.path.proxy"
+    # Reconstrói path completo: /grafana/login → /{env}/grafana/login
+    # Grafana recebe o path que o root_url espera (/{env}/grafana/)
+    "overwrite:path" = "/${var.environment}/grafana/$request.path.proxy"
   }
 }
 
-# Integração para raiz /grafana e /grafana/ (sem proxy variable)
+# Integração para raiz /grafana (sem proxy variable)
 resource "aws_apigatewayv2_integration" "grafana_root" {
   api_id             = aws_apigatewayv2_api.fixit.id
   integration_type   = "HTTP_PROXY"
@@ -102,7 +105,7 @@ resource "aws_apigatewayv2_integration" "grafana_root" {
   connection_id   = aws_apigatewayv2_vpc_link.fixit.id
 
   request_parameters = {
-    "overwrite:path" = "/grafana/"
+    "overwrite:path" = "/${var.environment}/grafana/"
   }
 }
 
