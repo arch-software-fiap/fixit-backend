@@ -75,6 +75,7 @@ resource "aws_apigatewayv2_route" "keycloak" {
 }
 
 # Integração com Grafana via VPC Link → NLB porta 3000
+# serve_from_sub_path=true: Grafana serve tudo em /grafana/* — manter prefixo no path
 resource "aws_apigatewayv2_integration" "grafana" {
   api_id             = aws_apigatewayv2_api.fixit.id
   integration_type   = "HTTP_PROXY"
@@ -85,22 +86,38 @@ resource "aws_apigatewayv2_integration" "grafana" {
   connection_id   = aws_apigatewayv2_vpc_link.fixit.id
 
   request_parameters = {
-    "overwrite:path" = "/$request.path.proxy"
+    # Mantém /grafana/ no path: /grafana/login → Grafana recebe /grafana/login
+    "overwrite:path" = "/grafana/$request.path.proxy"
   }
 }
 
-# Rota: ANY /grafana/{proxy+} → Grafana
+# Integração para raiz /grafana e /grafana/ (sem proxy variable)
+resource "aws_apigatewayv2_integration" "grafana_root" {
+  api_id             = aws_apigatewayv2_api.fixit.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.grafana.arn
+
+  connection_type = "VPC_LINK"
+  connection_id   = aws_apigatewayv2_vpc_link.fixit.id
+
+  request_parameters = {
+    "overwrite:path" = "/grafana/"
+  }
+}
+
+# Rota: ANY /grafana/{proxy+} → Grafana (paths com conteúdo)
 resource "aws_apigatewayv2_route" "grafana" {
   api_id    = aws_apigatewayv2_api.fixit.id
   route_key = "ANY /grafana/{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.grafana.id}"
 }
 
-# Rota: ANY /grafana → Grafana (raiz sem trailing slash)
+# Rota: ANY /grafana → Grafana (raiz, redireciona para /grafana/)
 resource "aws_apigatewayv2_route" "grafana_root" {
   api_id    = aws_apigatewayv2_api.fixit.id
   route_key = "ANY /grafana"
-  target    = "integrations/${aws_apigatewayv2_integration.grafana.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.grafana_root.id}"
 }
 
 # Stage de deploy (auto-deploy ativo)
