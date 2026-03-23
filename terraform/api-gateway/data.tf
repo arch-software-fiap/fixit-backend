@@ -18,6 +18,14 @@ data "aws_subnets" "public" {
   }
 }
 
+# Security Group dos nodes EKS (para abrir NodePorts)
+data "aws_security_group" "eks_nodes" {
+  filter {
+    name   = "tag:Name"
+    values = ["${var.cluster_name}-nodes-sg"]
+  }
+}
+
 # Nodes do EKS (instâncias EC2 do node group)
 data "aws_instances" "eks_nodes" {
   filter {

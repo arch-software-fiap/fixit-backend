@@ -1,7 +1,7 @@
 # VPC Link para conectar API Gateway ao NLB interno
 resource "aws_apigatewayv2_vpc_link" "fixit" {
   name               = "${var.environment}-fixit-vpc-link"
-  security_group_ids = []
+  security_group_ids = [aws_security_group.vpc_link.id]
   subnet_ids         = data.aws_subnets.public.ids
 
   tags = merge(var.common_tags, {
@@ -39,7 +39,8 @@ resource "aws_apigatewayv2_integration" "backend" {
   connection_id   = aws_apigatewayv2_vpc_link.fixit.id
 
   request_parameters = {
-    "overwrite:path" = "$request.path.proxy"
+    # context-path=/fixit-backend + mantém /api/ no path
+    "overwrite:path" = "/fixit-backend/api/$request.path.proxy"
   }
 }
 
@@ -54,7 +55,8 @@ resource "aws_apigatewayv2_integration" "keycloak" {
   connection_id   = aws_apigatewayv2_vpc_link.fixit.id
 
   request_parameters = {
-    "overwrite:path" = "$request.path.proxy"
+    # Keycloak 23+ não usa /auth prefix
+    "overwrite:path" = "/$request.path.proxy"
   }
 }
 
