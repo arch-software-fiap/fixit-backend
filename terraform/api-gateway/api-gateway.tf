@@ -80,6 +80,7 @@ resource "aws_apigatewayv2_stage" "fixit" {
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
+    format          = "$context.requestId $context.status $context.httpMethod $context.path $context.responseLength"
   }
 
   tags = merge(var.common_tags, {
