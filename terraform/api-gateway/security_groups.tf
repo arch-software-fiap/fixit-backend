@@ -25,7 +25,7 @@ resource "aws_vpc_security_group_ingress_rule" "nodes_backend_nodeport" {
   from_port         = 30080
   to_port           = 30080
   cidr_ipv4         = data.aws_vpc.fixit.cidr_block
-  description       = "NLB -> fixit-backend NodePort 30080"
+  description       = "NLB to fixit-backend NodePort 30080"
 }
 
 # Libera NodePort do keycloak nos nodes EKS via NLB
@@ -35,5 +35,5 @@ resource "aws_vpc_security_group_ingress_rule" "nodes_keycloak_nodeport" {
   from_port         = 30085
   to_port           = 30085
   cidr_ipv4         = data.aws_vpc.fixit.cidr_block
-  description       = "NLB -> keycloak NodePort 30085"
+  description       = "NLB to keycloak NodePort 30085"
 }
