@@ -195,7 +195,7 @@ jobs:
       - name: Disparar Terraform API Gateway
         run: |
           curl -s -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.GHCR_PAT }}" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/${{ github.repository }}/actions/workflows/api-gateway.yml/dispatches" \
             -d "{\"ref\":\"${{ github.ref_name }}\",\"inputs\":{\"environment\":\"${{ steps.env.outputs.environment }}\",\"action\":\"apply\"}}" \
