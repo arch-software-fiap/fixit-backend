@@ -11,7 +11,7 @@ data:
       "title": "fixit-backend",
       "uid": "fixit-backend",
       "schemaVersion": 36,
-      "version": 1,
+      "version": 2,
       "refresh": "30s",
       "time": { "from": "now-6h", "to": "now" },
       "panels": [
@@ -19,9 +19,11 @@ data:
           "id": 1,
           "title": "Taxa de Requisicoes HTTP (req/s)",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(rate(http_server_requests_seconds_count{job=\"fixit-backend\"}[2m])) by (uri, status)",
               "legendFormat": "{{uri}} [{{status}}]",
               "refId": "A"
@@ -30,16 +32,19 @@ data:
         },
         {
           "id": 2,
-          "title": "Latencia HTTP P99 (segundos)",
+          "title": "Latencia HTTP P99 e P50 (segundos)",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "histogram_quantile(0.99, sum(rate(http_server_requests_seconds_bucket{job=\"fixit-backend\"}[5m])) by (le, uri))",
               "legendFormat": "P99 {{uri}}",
               "refId": "A"
             },
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "histogram_quantile(0.50, sum(rate(http_server_requests_seconds_bucket{job=\"fixit-backend\"}[5m])) by (le, uri))",
               "legendFormat": "P50 {{uri}}",
               "refId": "B"
@@ -50,9 +55,11 @@ data:
           "id": 3,
           "title": "Ordens de Servico Criadas (total acumulado)",
           "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 4, "w": 6, "x": 0, "y": 8 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(ordens_servico_criadas_total)",
               "legendFormat": "OS Criadas",
               "refId": "A"
@@ -64,9 +71,11 @@ data:
           "id": 4,
           "title": "OS Criadas por Dia",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "increase(ordens_servico_criadas_total[24h])",
               "legendFormat": "OS/dia",
               "refId": "A"
@@ -77,9 +86,11 @@ data:
           "id": 5,
           "title": "Transicoes de Status de OS",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 12 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(increase(ordens_servico_status_total[1h])) by (status)",
               "legendFormat": "{{status}}",
               "refId": "A"
@@ -90,10 +101,12 @@ data:
           "id": 6,
           "title": "Tempo Medio de Criacao de OS (ms)",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
           "targets": [
             {
-              "expr": "rate(ordens_servico_criacao_duracao_segundos_sum[5m]) / rate(ordens_servico_criacao_duracao_segundos_count[5m]) * 1000",
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
+              "expr": "rate(ordens_servico_criacao_duracao_segundos_seconds_sum[5m]) / rate(ordens_servico_criacao_duracao_segundos_seconds_count[5m]) * 1000",
               "legendFormat": "Tempo medio (ms)",
               "refId": "A"
             }
@@ -103,14 +116,17 @@ data:
           "id": 7,
           "title": "JVM Heap Usage",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "jvm_memory_used_bytes{job=\"fixit-backend\", area=\"heap\"}",
               "legendFormat": "Heap Usado",
               "refId": "A"
             },
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "jvm_memory_max_bytes{job=\"fixit-backend\", area=\"heap\"}",
               "legendFormat": "Heap Max",
               "refId": "B"
@@ -121,9 +137,11 @@ data:
           "id": 8,
           "title": "CPU Usage - Pod fixit-backend",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"fixit\", pod=~\"fixit-backend.*\", container!=\"\"}[2m]))",
               "legendFormat": "CPU (cores)",
               "refId": "A"
@@ -134,9 +152,11 @@ data:
           "id": 9,
           "title": "Memory Usage - Pod fixit-backend",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 12, "y": 28 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(container_memory_working_set_bytes{namespace=\"fixit\", pod=~\"fixit-backend.*\", container!=\"\"})",
               "legendFormat": "Memoria (bytes)",
               "refId": "A"
@@ -147,9 +167,11 @@ data:
           "id": 10,
           "title": "Erros HTTP 5xx por Endpoint",
           "type": "timeseries",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 8, "w": 12, "x": 0, "y": 36 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(rate(http_server_requests_seconds_count{job=\"fixit-backend\", status=~\"5..\"}[5m])) by (uri)",
               "legendFormat": "5xx {{uri}}",
               "refId": "A"
@@ -160,9 +182,11 @@ data:
           "id": 11,
           "title": "Pod Restarts - namespace fixit",
           "type": "stat",
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
           "gridPos": { "h": 4, "w": 6, "x": 12, "y": 36 },
           "targets": [
             {
+              "datasource": { "type": "prometheus", "uid": "prometheus" },
               "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"fixit\"}) by (pod)",
               "legendFormat": "{{pod}}",
               "refId": "A"

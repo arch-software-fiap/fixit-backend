@@ -1,4 +1,4 @@
-## kube-prometheus-stack Helm values — perfil slim para t3.small (2GB RAM)
+## kube-prometheus-stack Helm values — perfil t3.medium (4GB RAM)
 ## https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 
 grafana:
@@ -64,12 +64,11 @@ prometheusOperator:
 alertmanager:
   enabled: false
 
-# Desabilitados em dev (t3.small nao tem recursos suficientes)
 nodeExporter:
   enabled: false
 
 kubeStateMetrics:
-  enabled: false
+  enabled: true
 
 defaultRules:
   create: true
