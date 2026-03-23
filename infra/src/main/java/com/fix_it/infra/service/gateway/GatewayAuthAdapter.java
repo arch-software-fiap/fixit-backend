@@ -25,23 +25,23 @@ public class GatewayAuthAdapter implements GatewayAuthPort {
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${integration.fixit.gateway.lambda-url:}")
-    private String gatewayLambdaUrl;
+    @Value("${integration.fixit.gateway.auth-url:${integration.fixit.gateway.lambda-url:}}")
+    private String externalAuthUrl;
 
     @Override
-    public GatewayAuthOutput authenticate(String cpf) {
-        if (!StringUtils.hasText(gatewayLambdaUrl)) {
+    public GatewayAuthOutput authenticate(String cpf, String dataNascimento) {
+        if (!StringUtils.hasText(externalAuthUrl)) {
             throw new ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE,
-                    "URL do API Gateway /lambda não configurada");
+                    "URL do serviço externo de autenticação não configurada");
         }
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<GatewayAuthRequest> request = new HttpEntity<>(new GatewayAuthRequest(cpf), headers);
+        HttpEntity<GatewayAuthRequest> request = new HttpEntity<>(new GatewayAuthRequest(cpf, dataNascimento), headers);
 
         try {
             ResponseEntity<GatewayAuthPayload> response = restTemplate.postForEntity(
-                    gatewayLambdaUrl,
+                    externalAuthUrl,
                     request,
                     GatewayAuthPayload.class
             );
@@ -50,25 +50,25 @@ public class GatewayAuthAdapter implements GatewayAuthPort {
             return toOutput(exception.getStatusCode().value(), parseBody(exception.getResponseBodyAsString()));
         } catch (ResourceAccessException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
-                    "Erro ao acessar o API Gateway /lambda", exception);
+                    "Erro ao acessar o serviço externo de autenticação", exception);
         }
     }
 
     private GatewayAuthPayload parseBody(String body) {
         if (!StringUtils.hasText(body)) {
-            return new GatewayAuthPayload(false, "Resposta vazia do API Gateway /lambda", null);
+            return new GatewayAuthPayload(false, "Resposta vazia do serviço externo de autenticação", null);
         }
 
         try {
             return objectMapper.readValue(body, GatewayAuthPayload.class);
         } catch (Exception exception) {
-            return new GatewayAuthPayload(false, "Resposta inválida do API Gateway /lambda", null);
+            return new GatewayAuthPayload(false, "Resposta inválida do serviço externo de autenticação", null);
         }
     }
 
     private GatewayAuthOutput toOutput(int statusCode, GatewayAuthPayload payload) {
         GatewayAuthPayload safePayload = payload == null
-                ? new GatewayAuthPayload(false, "Resposta vazia do API Gateway /lambda", null)
+                ? new GatewayAuthPayload(false, "Resposta vazia do serviço externo de autenticação", null)
                 : payload;
 
         return new GatewayAuthOutput(

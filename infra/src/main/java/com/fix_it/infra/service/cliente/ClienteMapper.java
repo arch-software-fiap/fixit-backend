@@ -18,6 +18,7 @@ public class ClienteMapper {
         entity.setCpfCnpj(domain.getCpfCnpj());
         entity.setEmail(domain.getEmail());
         entity.setTelefone(domain.getTelefone());
+        entity.setDtNascimento(domain.getDtNascimento());
         entity.setDtCadastro(domain.getDtCadastro());
         entity.setDthAtualizacao(domain.getDthAtualizacao());
         return entity;
@@ -34,6 +35,7 @@ public class ClienteMapper {
                 entity.getCpfCnpj(),
                 entity.getEmail(),
                 entity.getTelefone(),
+                entity.getDtNascimento(),
                 entity.getDtCadastro(),
                 entity.getDthAtualizacao()
         );
