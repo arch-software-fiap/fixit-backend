@@ -29,9 +29,9 @@ spec:
           resources:
             requests:
               cpu: 125m
-              memory: 512Mi
+              memory: 256Mi
             limits:
-              memory: 1024Mi
+              memory: 768Mi
           readinessProbe:
             httpGet:
               path: /fixit-backend/actuator/health
