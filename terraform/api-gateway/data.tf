@@ -18,12 +18,14 @@ data "aws_subnets" "public" {
   }
 }
 
-# Security Group dos nodes EKS (para abrir NodePorts)
+# Cluster EKS (para obter o cluster_security_group_id correto)
+data "aws_eks_cluster" "fixit" {
+  name = var.cluster_name
+}
+
+# Security Group do cluster EKS (o que EKS auto-cria e anexa aos nodes)
 data "aws_security_group" "eks_nodes" {
-  filter {
-    name   = "tag:Name"
-    values = ["${var.cluster_name}-nodes-sg"]
-  }
+  id = data.aws_eks_cluster.fixit.vpc_config[0].cluster_security_group_id
 }
 
 # Nodes do EKS (instâncias EC2 do node group)
