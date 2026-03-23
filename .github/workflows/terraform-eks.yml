@@ -175,6 +175,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ terraform, deploy-keycloak ]
     if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
     permissions:
       actions: write
       contents: read
