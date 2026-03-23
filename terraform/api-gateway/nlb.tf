@@ -105,3 +105,48 @@ resource "aws_lb_listener" "keycloak" {
     target_group_arn = aws_lb_target_group.keycloak.arn
   }
 }
+
+# Target Group - Grafana (NodePort 30300)
+resource "aws_lb_target_group" "grafana" {
+  name        = "${var.environment}-fixit-grafana-tg"
+  port        = 30300
+  protocol    = "TCP"
+  vpc_id      = data.aws_vpc.fixit.id
+  target_type = "instance"
+
+  health_check {
+    enabled             = true
+    protocol            = "HTTP"
+    path                = "/${var.environment}/grafana/api/health"
+    port                = "30300"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 30
+  }
+
+  tags = merge(var.common_tags, {
+    Name        = "${var.environment}-fixit-grafana-tg"
+    Environment = var.environment
+  })
+}
+
+# Registrar nodes EKS como targets - grafana
+resource "aws_lb_target_group_attachment" "grafana" {
+  count = length(data.aws_instances.eks_nodes.ids)
+
+  target_group_arn = aws_lb_target_group.grafana.arn
+  target_id        = data.aws_instances.eks_nodes.ids[count.index]
+  port             = 30300
+}
+
+# Listener NLB - grafana na porta 3000
+resource "aws_lb_listener" "grafana" {
+  load_balancer_arn = aws_lb.fixit.arn
+  port              = 3000
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.grafana.arn
+  }
+}

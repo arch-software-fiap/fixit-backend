@@ -1,8 +1,11 @@
 package com.fix_it.infra.controller.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
 
 public record ClienteRequest(
 
@@ -19,5 +22,8 @@ public record ClienteRequest(
         String email,
 
         @Size(max = 20)
-        String telefone
+        String telefone,
+
+        @JsonFormat(pattern = "dd/MM/yyyy")
+        LocalDate dtNascimento
 ) {}

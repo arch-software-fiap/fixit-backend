@@ -16,6 +16,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ class ClienteControllerIntegrationTest extends IntegrationTestBase {
         clienteExistente.setCpfCnpj("12345678901");
         clienteExistente.setEmail("joao@email.com");
         clienteExistente.setTelefone("11999999999");
+        clienteExistente.setDtNascimento(LocalDate.of(1990, 1, 1));
         clienteExistente = clienteRepository.save(clienteExistente);
     }
 
@@ -60,7 +62,8 @@ class ClienteControllerIntegrationTest extends IntegrationTestBase {
                     "Maria Santos",
                     "98765432100",
                     "maria@email.com",
-                    "11888888888"
+                    "11888888888",
+                    LocalDate.of(1992, 2, 2)
             );
 
             ResponseEntity<Map> response = restTemplate.postForEntity(BASE_URL, request, Map.class);
@@ -70,16 +73,18 @@ class ClienteControllerIntegrationTest extends IntegrationTestBase {
             assertThat(response.getBody().get("nome")).isEqualTo("Maria Santos");
             assertThat(response.getBody().get("cpfCnpj")).isEqualTo("98765432100");
             assertThat(response.getBody().get("id")).isNotNull();
+            assertThat(response.getBody().get("dtNascimento")).isEqualTo("02/02/1992");
         }
 
         @Test
         @DisplayName("Deve retornar erro ao criar cliente com dados inválidos")
         void deveRetornarErroComDadosInvalidos() {
             ClienteRequest request = new ClienteRequest(
-                    "", // nome vazio - inválido
+                    "",
                     "",
                     "email-invalido",
-                    "11888888888"
+                    "11888888888",
+                    LocalDate.of(1992, 2, 2)
             );
 
             ResponseEntity<Map> response = restTemplate.postForEntity(BASE_URL, request, Map.class);
@@ -170,7 +175,8 @@ class ClienteControllerIntegrationTest extends IntegrationTestBase {
                     "João Silva Atualizado",
                     "12345678901",
                     "joao.atualizado@email.com",
-                    "11777777777"
+                    "11777777777",
+                    LocalDate.of(1991, 1, 1)
             );
 
             ResponseEntity<Map> response = restTemplate.exchange(
@@ -184,6 +190,7 @@ class ClienteControllerIntegrationTest extends IntegrationTestBase {
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody().get("nome")).isEqualTo("João Silva Atualizado");
             assertThat(response.getBody().get("email")).isEqualTo("joao.atualizado@email.com");
+            assertThat(response.getBody().get("dtNascimento")).isEqualTo("01/01/1991");
         }
     }
 

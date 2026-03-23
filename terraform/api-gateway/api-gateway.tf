@@ -74,6 +74,55 @@ resource "aws_apigatewayv2_route" "keycloak" {
   target    = "integrations/${aws_apigatewayv2_integration.keycloak.id}"
 }
 
+# Integração com Grafana via VPC Link → NLB porta 3000
+# O API GW stripa o prefixo de stage (/dev/, /hmg/) antes de rotear.
+# Grafana com serve_from_sub_path=true precisa receber o path COMPLETO incluindo stage.
+# Solução: reconstruir o path completo com var.environment no overwrite:path.
+resource "aws_apigatewayv2_integration" "grafana" {
+  api_id             = aws_apigatewayv2_api.fixit.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.grafana.arn
+
+  connection_type = "VPC_LINK"
+  connection_id   = aws_apigatewayv2_vpc_link.fixit.id
+
+  request_parameters = {
+    # Reconstrói path completo: /grafana/login → /{env}/grafana/login
+    # Grafana recebe o path que o root_url espera (/{env}/grafana/)
+    "overwrite:path" = "/${var.environment}/grafana/$request.path.proxy"
+  }
+}
+
+# Integração para raiz /grafana (sem proxy variable)
+resource "aws_apigatewayv2_integration" "grafana_root" {
+  api_id             = aws_apigatewayv2_api.fixit.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.grafana.arn
+
+  connection_type = "VPC_LINK"
+  connection_id   = aws_apigatewayv2_vpc_link.fixit.id
+
+  request_parameters = {
+    "overwrite:path" = "/${var.environment}/grafana/"
+  }
+}
+
+# Rota: ANY /grafana/{proxy+} → Grafana (paths com conteúdo)
+resource "aws_apigatewayv2_route" "grafana" {
+  api_id    = aws_apigatewayv2_api.fixit.id
+  route_key = "ANY /grafana/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.grafana.id}"
+}
+
+# Rota: ANY /grafana → Grafana (raiz, redireciona para /grafana/)
+resource "aws_apigatewayv2_route" "grafana_root" {
+  api_id    = aws_apigatewayv2_api.fixit.id
+  route_key = "ANY /grafana"
+  target    = "integrations/${aws_apigatewayv2_integration.grafana_root.id}"
+}
+
 # Stage de deploy (auto-deploy ativo)
 resource "aws_apigatewayv2_stage" "fixit" {
   api_id      = aws_apigatewayv2_api.fixit.id

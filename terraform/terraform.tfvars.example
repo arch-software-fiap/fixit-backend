@@ -18,6 +18,10 @@ keycloak_admin_password = "admin"
 # Configurações de Log
 logging_level = "INFO"
 
+# Configurações do serviço externo de autenticação
+fixit_external_auth_shared_secret = "seu-segredo-compartilhado"
+fixit_gateway_lambda_url          = "https://sua-url-do-servico-auth"
+
 # Configurações do GitHub Container Registry
 ghcr_username = "seu-usuario-github"
 ghcr_token    = "seu-token-github"

@@ -13,6 +13,11 @@ output "api_keycloak_url" {
   value       = "${aws_apigatewayv2_stage.fixit.invoke_url}/auth"
 }
 
+output "api_grafana_url" {
+  description = "URL do Grafana via API Gateway"
+  value       = "${aws_apigatewayv2_stage.fixit.invoke_url}/grafana"
+}
+
 output "vpc_link_id" {
   description = "ID do VPC Link"
   value       = aws_apigatewayv2_vpc_link.fixit.id

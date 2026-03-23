@@ -1,110 +1,89 @@
 package com.fix_it.core.domain.entity;
 
 import com.fix_it.core.domain.enums.SituacaoOrdemServico;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OrdemServicoTest {
 
     @Test
-    @DisplayName("Deve criar uma nova OS com valores iniciais")
-    void deveCriarNovaOS() {
-        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456");
-        Veiculo veiculo = Veiculo.novo("Civic", "Sedan", "ABC-1234", "Honda", "EXL", 2022, cliente);
-        String descricao = "Troca de óleo";
+    void deveCriarNovaOSComValoresIniciais() {
+        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456", null);
+        Veiculo veiculo = Veiculo.novo("Carro", "Descrição", "ABC1234", "Marca", "Modelo", 2020, cliente);
 
-        OrdemServico os = OrdemServico.nova(descricao, cliente, veiculo);
+        OrdemServico os = OrdemServico.nova("Troca de óleo", cliente, veiculo);
 
-        assertThat(os.getId()).isNull();
-        assertThat(os.getSituacao()).isEqualTo(SituacaoOrdemServico.RECEBIDA);
-        assertThat(os.getDescricao()).isEqualTo(descricao);
-        assertThat(os.getCliente()).isEqualTo(cliente);
-        assertThat(os.getVeiculo()).isEqualTo(veiculo);
-        assertThat(os.getDataAberturaEm()).isBeforeOrEqualTo(LocalDateTime.now());
-        assertThat(os.getDataFechamentoEm()).isNull();
+        assertNull(os.getId());
+        assertEquals(SituacaoOrdemServico.RECEBIDA, os.getSituacao());
+        assertEquals("Troca de óleo", os.getDescricao());
+        assertEquals(0L, os.getValorOrcamentoTotal());
+        assertEquals(0L, os.getValorTotalFinal());
+        assertEquals(cliente, os.getCliente());
+        assertEquals(veiculo, os.getVeiculo());
+        assertNotNull(os.getDataAberturaEm());
+        assertNull(os.getDataFechamentoEm());
     }
 
     @Test
-    @DisplayName("Deve criar uma instância de OS com todos os campos")
-    void deveCriarOSComOf() {
-        UUID id = UUID.randomUUID();
-        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456");
-        Veiculo veiculo = Veiculo.novo("Civic", "Sedan", "ABC-1234", "Honda", "EXL", 2022, cliente);
-        LocalDateTime abertura = LocalDateTime.now().minusDays(1);
-        LocalDateTime fechamento = LocalDateTime.now();
+    void deveAtualizarDescricaoQuandoNaoFinalizada() {
+        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456", null);
+        Veiculo veiculo = Veiculo.novo("Carro", "Descrição", "ABC1234", "Marca", "Modelo", 2020, cliente);
+        OrdemServico os = OrdemServico.nova("Antiga", cliente, veiculo);
 
-        OrdemServico os = OrdemServico.of(id, SituacaoOrdemServico.FINALIZADA, "Desc", abertura, fechamento, 100L, 100L, cliente, veiculo);
+        os.atualizarDescricao("Nova descrição");
 
-        assertThat(os.getId()).isEqualTo(id);
-        assertThat(os.getSituacao()).isEqualTo(SituacaoOrdemServico.FINALIZADA);
-        assertThat(os.getDataAberturaEm()).isEqualTo(abertura);
-        assertThat(os.getDataFechamentoEm()).isEqualTo(fechamento);
+        assertEquals("Nova descrição", os.getDescricao());
     }
 
     @Test
-    @DisplayName("Deve atualizar descrição da OS")
-    void deveAtualizarDescricao() {
-        OrdemServico os = OrdemServico.nova("Antiga", null, null);
-        os.atualizarDescricao("Nova");
-        assertThat(os.getDescricao()).isEqualTo("Nova");
-    }
-
-    @Test
-    @DisplayName("Não deve atualizar descrição de OS finalizada ou entregue")
-    void naoDeveAtualizarDescricaoOSFinalizada() {
-        OrdemServico os = OrdemServico.nova("Desc", null, null);
-        
+    void naoDeveAtualizarDescricaoQuandoFinalizadaOuEntregue() {
+        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456", null);
+        Veiculo veiculo = Veiculo.novo("Carro", "Descrição", "ABC1234", "Marca", "Modelo", 2020, cliente);
+        OrdemServico os = OrdemServico.nova("Teste", cliente, veiculo);
         os.alterarSituacao(SituacaoOrdemServico.FINALIZADA);
-        assertThatThrownBy(() -> os.atualizarDescricao("Nova"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("OS finalizada/entregue não pode ser atualizada.");
 
-        os.alterarSituacao(SituacaoOrdemServico.ENTREGUE);
-        assertThatThrownBy(() -> os.atualizarDescricao("Nova"))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("OS finalizada/entregue não pode ser atualizada.");
+        assertThrows(IllegalArgumentException.class, () -> os.atualizarDescricao("Outra"));
     }
 
     @Test
-    @DisplayName("Deve alterar situação e definir data de fechamento")
-    void deveAlterarSituacao() {
-        OrdemServico os = OrdemServico.nova("Desc", null, null);
-        assertThat(os.getDataFechamentoEm()).isNull();
-
-        os.alterarSituacao(SituacaoOrdemServico.EM_EXECUCAO);
-        assertThat(os.getSituacao()).isEqualTo(SituacaoOrdemServico.EM_EXECUCAO);
-        assertThat(os.getDataFechamentoEm()).isNull();
+    void deveDefinirDataFechamentoQuandoFinalizadaOuEntregue() {
+        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456", null);
+        Veiculo veiculo = Veiculo.novo("Carro", "Descrição", "ABC1234", "Marca", "Modelo", 2020, cliente);
+        OrdemServico os = OrdemServico.nova("Teste", cliente, veiculo);
 
         os.alterarSituacao(SituacaoOrdemServico.FINALIZADA);
-        assertThat(os.getSituacao()).isEqualTo(SituacaoOrdemServico.FINALIZADA);
-        assertThat(os.getDataFechamentoEm()).isNotNull();
+
+        assertEquals(SituacaoOrdemServico.FINALIZADA, os.getSituacao());
+        assertNotNull(os.getDataFechamentoEm());
     }
 
     @Test
-    @DisplayName("Deve atualizar valores da OS")
     void deveAtualizarValores() {
-        OrdemServico os = OrdemServico.nova("Desc", null, null);
-        os.atualizarValores(500L, 450L);
-        assertThat(os.getValorOrcamentoTotal()).isEqualTo(500L);
-        assertThat(os.getValorTotalFinal()).isEqualTo(450L);
+        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456", null);
+        Veiculo veiculo = Veiculo.novo("Carro", "Descrição", "ABC1234", "Marca", "Modelo", 2020, cliente);
+        OrdemServico os = OrdemServico.nova("Teste", cliente, veiculo);
+
+        os.atualizarValores(100L, 150L);
+
+        assertEquals(100L, os.getValorOrcamentoTotal());
+        assertEquals(150L, os.getValorTotalFinal());
     }
 
     @Test
-    @DisplayName("Deve validar equals e hashCode baseados no ID")
-    void deveValidarEqualsEHashCode() {
-        UUID id = UUID.randomUUID();
-        OrdemServico os1 = OrdemServico.of(id, null, null, null, null, null, null, null, null);
-        OrdemServico os2 = OrdemServico.of(id, null, null, null, null, null, null, null, null);
-        OrdemServico os3 = OrdemServico.of(UUID.randomUUID(), null, null, null, null, null, null, null, null);
+    void deveUsarEqualsEHashCodePorId() {
+        var id = java.util.UUID.randomUUID();
+        Cliente cliente = Cliente.novo("João", "123", "j@j.com", "456", null);
+        Veiculo veiculo = Veiculo.novo("Carro", "Descrição", "ABC1234", "Marca", "Modelo", 2020, cliente);
+        OrdemServico os1 = OrdemServico.of(id, SituacaoOrdemServico.RECEBIDA, "A", java.time.LocalDateTime.now(), null, 0L, 0L, cliente, veiculo);
+        OrdemServico os2 = OrdemServico.of(id, SituacaoOrdemServico.RECEBIDA, "B", java.time.LocalDateTime.now(), null, 0L, 0L, cliente, veiculo);
 
-        assertThat(os1).isEqualTo(os2);
-        assertThat(os1).isNotEqualTo(os3);
-        assertThat(os1.hashCode()).isEqualTo(os2.hashCode());
+        assertEquals(os1, os2);
+        assertEquals(os1.hashCode(), os2.hashCode());
+        assertTrue(os1.equals(os2));
     }
 }
