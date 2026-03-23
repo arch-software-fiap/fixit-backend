@@ -143,15 +143,17 @@ jobs:
             --region ${{ env.AWS_REGION }} \
             --name ${{ needs.terraform.outputs.environment == 'prod' && 'production-fixit-eks' || needs.terraform.outputs.environment == 'hmg' && 'homologation-fixit-eks' || 'development-fixit-eks' }}
 
-      - name: Limpar pods de monitoring travados (liberar memoria no no)
+      - name: Limpar namespace monitoring (liberar memoria no no)
         run: |
-          # Pods zumbis de installs anteriores consomem memoria e impedem outros deploys
-          # Deletar namespace libera tudo de uma vez; sera recriado pelo deploy-monitoring
+          # Deleta o namespace inteiro para garantir que nenhum pod de install
+          # anterior fique consumindo memoria no t3.small
           if kubectl get namespace monitoring &>/dev/null; then
-            echo "Namespace monitoring encontrado — removendo pods travados..."
-            kubectl delete pods -n monitoring --field-selector=status.phase!=Running --grace-period=0 --force 2>/dev/null || true
-            echo "Aguardando liberacao de recursos..."
-            sleep 15
+            echo "Removendo namespace monitoring completo..."
+            helm uninstall monitoring -n monitoring 2>/dev/null || true
+            kubectl delete namespace monitoring --grace-period=0 2>/dev/null || true
+            echo "Aguardando namespace ser removido..."
+            kubectl wait --for=delete namespace/monitoring --timeout=60s 2>/dev/null || true
+            echo "Namespace removido — memoria liberada"
           else
             echo "Namespace monitoring nao existe — nada a limpar"
           fi
