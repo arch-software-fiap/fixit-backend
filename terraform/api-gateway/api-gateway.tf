@@ -74,6 +74,13 @@ resource "aws_apigatewayv2_route" "keycloak" {
   target    = "integrations/${aws_apigatewayv2_integration.keycloak.id}"
 }
 
+# Rota: ANY /admin/{proxy+} → keycloak (console admin do Keycloak 20+ redireciona para /admin/)
+resource "aws_apigatewayv2_route" "keycloak_admin" {
+  api_id    = aws_apigatewayv2_api.fixit.id
+  route_key = "ANY /admin/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.keycloak.id}"
+}
+
 # Integração com Grafana via VPC Link → NLB porta 3000
 # O API GW stripa o prefixo de stage (/dev/, /hmg/) antes de rotear.
 # Grafana com serve_from_sub_path=true precisa receber o path COMPLETO incluindo stage.
