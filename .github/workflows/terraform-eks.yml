@@ -38,6 +38,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      environment: ${{ steps.env.outputs.environment }}
+      action: ${{ steps.env.outputs.action }}
 
     defaults:
       run:
@@ -113,3 +116,102 @@ jobs:
           terraform destroy \
             -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
             -auto-approve
+
+  deploy-keycloak:
+    name: "Deploy Keycloak"
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configurar kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ needs.terraform.outputs.environment == 'prod' && 'production-fixit-eks' || needs.terraform.outputs.environment == 'hmg' && 'homologation-fixit-eks' || 'development-fixit-eks' }}
+
+      - name: Criar namespace
+        run: kubectl apply -f .k8s/namespace.yml
+
+      - name: Criar ConfigMap do Realm
+        run: |
+          kubectl create configmap keycloak-realm \
+            --from-file=realm-export.json=.docker/keycloak/realm-export.json \
+            -n fixit \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Criar Secret do Keycloak
+        run: |
+          kubectl create secret generic keycloak-secret \
+            --from-literal=KEYCLOAK_ADMIN=${{ secrets.KEYCLOAK_ADMIN }} \
+            --from-literal=KEYCLOAK_ADMIN_PASSWORD=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }} \
+            -n fixit \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Keycloak
+        run: |
+          kubectl apply -f .k8s/keycloak/deployment.yml
+          kubectl apply -f .k8s/keycloak/service.yml
+
+      - name: Aguardar Keycloak pronto
+        run: |
+          kubectl rollout status deployment/keycloak -n fixit --timeout=300s
+
+      - name: Inicializar senha do usuario Keycloak
+        run: |
+          kubectl port-forward svc/keycloak 18080:8080 -n fixit &
+          PF_PID=$!
+          sleep 8
+
+          ADMIN_TOKEN=$(curl -s -X POST \
+            "http://localhost:18080/realms/master/protocol/openid-connect/token" \
+            -H "Content-Type: application/x-www-form-urlencoded" \
+            -d "grant_type=password&client_id=admin-cli&username=${{ secrets.KEYCLOAK_ADMIN }}&password=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
+            | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
+
+          USER_ID=$(curl -s \
+            "http://localhost:18080/admin/realms/fixit/users?username=user" \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            | python3 -c "import sys,json; u=json.load(sys.stdin); print(u[0]['id'] if u else '')")
+
+          curl -s -X PUT \
+            "http://localhost:18080/admin/realms/fixit/users/$USER_ID/reset-password" \
+            -H "Authorization: Bearer $ADMIN_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"type":"password","value":"${{ secrets.KEYCLOAK_USER_PASSWORD }}","temporary":false}' \
+            -w "HTTP reset-password: %{http_code}\n"
+
+          kill $PF_PID 2>/dev/null || true
+
+  trigger-app-deploy:
+    name: "Disparar Deploy da Aplicacao"
+    runs-on: ubuntu-latest
+    needs: [ terraform, deploy-keycloak ]
+    if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
+    permissions:
+      actions: write
+      contents: read
+
+    steps:
+      - name: Disparar CI/CD Pipeline Java
+        run: |
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GHCR_PAT }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/${{ github.repository }}/actions/workflows/build.yml/dispatches" \
+            -d "{\"ref\":\"${{ github.ref_name }}\"}" \
+            -w "HTTP: %{http_code}\n"
