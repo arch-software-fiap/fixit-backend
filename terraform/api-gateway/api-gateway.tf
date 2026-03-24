@@ -124,6 +124,30 @@ resource "aws_apigatewayv2_route" "keycloak_resources" {
   target    = "integrations/${aws_apigatewayv2_integration.keycloak_resources.id}"
 }
 
+# Integração para /realms/{proxy+} — URLs diretas geradas pelo Keycloak via KC_HOSTNAME_URL
+# Keycloak com KC_HOSTNAME_URL=https://<gw>/<env> gera links sem prefixo /auth/:
+# ex: https://<gw>/<env>/realms/master/protocol/openid-connect/3p-cookies/step1.html
+resource "aws_apigatewayv2_integration" "keycloak_realms" {
+  api_id             = aws_apigatewayv2_api.fixit.id
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.keycloak.arn
+
+  connection_type = "VPC_LINK"
+  connection_id   = aws_apigatewayv2_vpc_link.fixit.id
+
+  request_parameters = {
+    "overwrite:path" = "/${var.environment}/realms/$request.path.proxy"
+  }
+}
+
+# Rota: ANY /realms/{proxy+} → keycloak
+resource "aws_apigatewayv2_route" "keycloak_realms" {
+  api_id    = aws_apigatewayv2_api.fixit.id
+  route_key = "ANY /realms/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.keycloak_realms.id}"
+}
+
 # Integração com Grafana via VPC Link → NLB porta 3000
 # O API GW stripa o prefixo de stage (/dev/, /hmg/) antes de rotear.
 # Grafana com serve_from_sub_path=true precisa receber o path COMPLETO incluindo stage.
