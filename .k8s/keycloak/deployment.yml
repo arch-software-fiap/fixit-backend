@@ -51,18 +51,44 @@ spec:
               memory: 512Mi
             limits:
               memory: 1024Mi
-          readinessProbe:
-            httpGet:
-              path: /realms/fixit
-              port: 8080
+          # A imagem quay.io/keycloak/keycloak:23.0 (UBI9 minimal) nao possui curl/wget.
+          # bash /dev/tcp e um builtin nativo — faz HTTP sem dependencias externas.
+          # startupProbe: 60s delay + 30x15s = ate 510s para Keycloak 23 + import-realm.
+          startupProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - >-
+                  exec 3<>/dev/tcp/localhost/8080 &&
+                  printf "GET ${KC_HTTP_RELATIVE_PATH}/realms/fixit HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3 &&
+                  read -t5 -r line <&3 &&
+                  [[ "$line" == *"200"* ]]
             initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - >-
+                  exec 3<>/dev/tcp/localhost/8080 &&
+                  printf "GET ${KC_HTTP_RELATIVE_PATH}/realms/fixit HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3 &&
+                  read -t5 -r line <&3 &&
+                  [[ "$line" == *"200"* ]]
             periodSeconds: 10
-            failureThreshold: 6
+            failureThreshold: 3
           livenessProbe:
-            httpGet:
-              path: /realms/fixit
-              port: 8080
-            initialDelaySeconds: 120
+            exec:
+              command:
+                - bash
+                - -c
+                - >-
+                  exec 3<>/dev/tcp/localhost/8080 &&
+                  printf "GET ${KC_HTTP_RELATIVE_PATH}/realms/fixit HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3 &&
+                  read -t5 -r line <&3 &&
+                  [[ "$line" == *"200"* ]]
             periodSeconds: 30
             failureThreshold: 3
       volumes:
