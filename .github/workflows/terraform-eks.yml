@@ -117,10 +117,52 @@ jobs:
             -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
             -auto-approve
 
+  refresh-api-gateway:
+    name: "Refresh API Gateway (re-registrar nodes NLB)"
+    runs-on: ubuntu-latest
+    needs: terraform
+    if: needs.terraform.outputs.action == 'apply'
+    environment: ${{ needs.terraform.outputs.environment }}
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Instalar Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.10.0"
+
+      - name: Terraform Init (API Gateway)
+        working-directory: terraform/api-gateway
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ env.TF_BUCKET }}" \
+            -backend-config="key=fixit-api-gateway/${{ needs.terraform.outputs.environment }}/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}" \
+            -backend-config="encrypt=true"
+
+      - name: Terraform Apply (API Gateway)
+        working-directory: terraform/api-gateway
+        run: |
+          terraform apply \
+            -var="environment=${{ needs.terraform.outputs.environment }}" \
+            -auto-approve
+
   deploy-keycloak:
     name: "Deploy Keycloak"
     runs-on: ubuntu-latest
-    needs: terraform
+    needs: [terraform, refresh-api-gateway]
     if: needs.terraform.outputs.action == 'apply'
     environment: ${{ needs.terraform.outputs.environment }}
     permissions:
