@@ -51,24 +51,32 @@ spec:
               memory: 512Mi
             limits:
               memory: 1024Mi
-          readinessProbe:
+          # startupProbe: bloqueia readiness/liveness até o Keycloak iniciar completamente.
+          # Keycloak 23 com --import-realm pode demorar >3min na primeira inicialização.
+          # 60s initial delay + 30 tentativas × 15s = até 510s de janela de startup.
+          startupProbe:
             exec:
-              # Usa KC_HTTP_RELATIVE_PATH dinamicamente: com /dev → /dev/realms/fixit
-              # Sem a var (vazio) cai no path raiz → /realms/fixit (retrocompatível)
               command:
                 - sh
                 - -c
                 - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
             initialDelaySeconds: 60
+            periodSeconds: 15
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
             periodSeconds: 10
-            failureThreshold: 6
+            failureThreshold: 3
           livenessProbe:
             exec:
               command:
                 - sh
                 - -c
                 - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
-            initialDelaySeconds: 120
             periodSeconds: 30
             failureThreshold: 3
       volumes:
