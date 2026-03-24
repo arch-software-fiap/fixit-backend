@@ -52,16 +52,22 @@ spec:
             limits:
               memory: 1024Mi
           readinessProbe:
-            httpGet:
-              path: /realms/fixit
-              port: 8080
+            exec:
+              # Usa KC_HTTP_RELATIVE_PATH dinamicamente: com /dev → /dev/realms/fixit
+              # Sem a var (vazio) cai no path raiz → /realms/fixit (retrocompatível)
+              command:
+                - sh
+                - -c
+                - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
             initialDelaySeconds: 60
             periodSeconds: 10
             failureThreshold: 6
           livenessProbe:
-            httpGet:
-              path: /realms/fixit
-              port: 8080
+            exec:
+              command:
+                - sh
+                - -c
+                - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
             initialDelaySeconds: 120
             periodSeconds: 30
             failureThreshold: 3

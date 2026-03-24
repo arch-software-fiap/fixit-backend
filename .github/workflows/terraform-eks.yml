@@ -180,6 +180,11 @@ jobs:
         run: |
           kubectl apply -f .k8s/keycloak/deployment.yml
           kubectl apply -f .k8s/keycloak/service.yml
+          # KC_HTTP_RELATIVE_PATH faz o Keycloak gerar paths de assets com o stage prefix
+          # Ex: /dev → <base href="/dev/resources/..."> — browser resolve com stage ✓
+          kubectl set env deployment/keycloak \
+            KC_HTTP_RELATIVE_PATH="/${{ needs.terraform.outputs.environment }}" \
+            -n fixit
 
       - name: Aguardar Keycloak pronto
         run: |
