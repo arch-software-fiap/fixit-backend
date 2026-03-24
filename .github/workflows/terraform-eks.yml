@@ -176,34 +176,62 @@ jobs:
             -n fixit \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: Obter URL do API Gateway (para Keycloak hostname)
+        id: apigw_kc
+        run: |
+          ENV="${{ needs.terraform.outputs.environment }}"
+          API_GW_URL=$(aws apigatewayv2 get-apis \
+            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
+            --output text 2>/dev/null || echo "")
+          if [ -n "$API_GW_URL" ] && [ "$API_GW_URL" != "None" ]; then
+            KC_HOSTNAME_URL="${API_GW_URL}/${ENV}"
+          else
+            KC_HOSTNAME_URL="http://localhost:8080/${ENV}"
+          fi
+          echo "kc_hostname_url=${KC_HOSTNAME_URL}" >> $GITHUB_OUTPUT
+
       - name: Deploy Keycloak
         run: |
           kubectl apply -f .k8s/keycloak/deployment.yml
           kubectl apply -f .k8s/keycloak/service.yml
+          ENV="${{ needs.terraform.outputs.environment }}"
+          KC_URL="${{ steps.apigw_kc.outputs.kc_hostname_url }}"
+          # KC_HTTP_RELATIVE_PATH: Keycloak gera paths de assets com o stage prefix
+          # KC_PROXY_HEADERS: respeita X-Forwarded-Proto: https do API GW
+          # KC_HOSTNAME_URL / KC_HOSTNAME_ADMIN_URL: força https:// em todas as URLs geradas
+          kubectl set env deployment/keycloak \
+            KC_HTTP_RELATIVE_PATH="/${ENV}" \
+            KC_PROXY_HEADERS="xforwarded" \
+            KC_HOSTNAME_URL="${KC_URL}" \
+            KC_HOSTNAME_ADMIN_URL="${KC_URL}" \
+            -n fixit
 
       - name: Aguardar Keycloak pronto
         run: |
-          kubectl rollout status deployment/keycloak -n fixit --timeout=300s
+          # Timeout 600s: Keycloak 23 com realm import pode demorar >5min no cold start
+          kubectl rollout status deployment/keycloak -n fixit --timeout=600s
 
       - name: Inicializar senha do usuario Keycloak
         run: |
+          ENV="${{ needs.terraform.outputs.environment }}"
           kubectl port-forward svc/keycloak 18080:8080 -n fixit &
           PF_PID=$!
           sleep 8
 
+          # Com KC_HTTP_RELATIVE_PATH=/${ENV} todos os endpoints incluem o prefixo do ambiente
           ADMIN_TOKEN=$(curl -s -X POST \
-            "http://localhost:18080/realms/master/protocol/openid-connect/token" \
+            "http://localhost:18080/${ENV}/realms/master/protocol/openid-connect/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=password&client_id=admin-cli&username=${{ secrets.KEYCLOAK_ADMIN }}&password=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
             | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
 
           USER_ID=$(curl -s \
-            "http://localhost:18080/admin/realms/fixit/users?username=user" \
+            "http://localhost:18080/${ENV}/admin/realms/fixit/users?username=user" \
             -H "Authorization: Bearer $ADMIN_TOKEN" \
             | python3 -c "import sys,json; u=json.load(sys.stdin); print(u[0]['id'] if u else '')")
 
           curl -s -X PUT \
-            "http://localhost:18080/admin/realms/fixit/users/$USER_ID/reset-password" \
+            "http://localhost:18080/${ENV}/admin/realms/fixit/users/$USER_ID/reset-password" \
             -H "Authorization: Bearer $ADMIN_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"type":"password","value":"${{ secrets.KEYCLOAK_USER_PASSWORD }}","temporary":false}' \

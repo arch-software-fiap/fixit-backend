@@ -160,6 +160,12 @@ jobs:
           kubectl apply -f .k8s/fixit-backend/service.yml
           kubectl apply -f .k8s/fixit-backend/hpa.yml
           kubectl apply -f .k8s/fixit-backend/ingress.yml
+          # Ajusta KEYCLOAK_SERVER_URL para incluir o KC_HTTP_RELATIVE_PATH do Keycloak
+          # Sem isso o backend chama /realms/fixit mas Keycloak com KC_HTTP_RELATIVE_PATH
+          # espera /${env}/realms/fixit → JWT validation falha
+          kubectl set env deployment/fixit-backend \
+            KEYCLOAK_SERVER_URL="http://keycloak.fixit.svc.cluster.local:8080/${{ steps.env.outputs.environment }}" \
+            -n fixit
 
       - name: Atualizar imagem com SHA do commit
         run: |
@@ -234,5 +240,91 @@ jobs:
             -auto-approve \
             -no-color
 
+      - name: Obter URL do API Gateway
+        id: apigw_url
+        run: |
+          URL=$(terraform output -raw api_gateway_url)
+          echo "url=${URL}" >> $GITHUB_OUTPUT
+          echo "API Gateway URL: ${URL}"
+
       - name: Mostrar URL do API Gateway
         run: terraform output api_gateway_url
+
+  post-deploy-config:
+    name: "Configurar Keycloak e Grafana com URL do API Gateway"
+    runs-on: ubuntu-latest
+    needs: [ deploy-api-gateway ]
+    environment: >-
+      ${{ (github.event.workflow_run.head_branch == 'main' || github.ref_name == 'main') && 'prod' ||
+          (github.event.workflow_run.head_branch == 'hmg'  || github.ref_name == 'hmg')  && 'hmg'  ||
+          'dev' }}
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolver ambiente
+        id: env
+        run: |
+          BRANCH="${{ github.event.workflow_run.head_branch || github.ref_name }}"
+          if [ "$BRANCH" == "main" ]; then
+            echo "environment=prod" >> $GITHUB_OUTPUT
+            echo "cluster=production-fixit-eks" >> $GITHUB_OUTPUT
+          elif [ "$BRANCH" == "hmg" ]; then
+            echo "environment=hmg" >> $GITHUB_OUTPUT
+            echo "cluster=homologation-fixit-eks" >> $GITHUB_OUTPUT
+          else
+            echo "environment=dev" >> $GITHUB_OUTPUT
+            echo "cluster=development-fixit-eks" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Configurar AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configurar kubectl
+        run: |
+          aws eks update-kubeconfig \
+            --region ${{ env.AWS_REGION }} \
+            --name ${{ steps.env.outputs.cluster }}
+
+      - name: Instalar Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: "3.14.0"
+
+      - name: Atualizar Keycloak com URL do API Gateway
+        run: |
+          ENV="${{ steps.env.outputs.environment }}"
+          API_GW_URL=$(aws apigatewayv2 get-apis \
+            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
+            --output text)
+          KC_HOSTNAME_URL="${API_GW_URL}/${ENV}"
+          echo "Configurando Keycloak: KC_HOSTNAME_URL=${KC_HOSTNAME_URL}"
+          kubectl set env deployment/keycloak \
+            KC_HOSTNAME_URL="${KC_HOSTNAME_URL}" \
+            KC_HOSTNAME_ADMIN_URL="${KC_HOSTNAME_URL}" \
+            -n fixit
+          kubectl rollout status deployment/keycloak -n fixit --timeout=300s
+
+      - name: Adicionar repositorio kube-prometheus-stack
+        run: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
+
+      - name: Atualizar Grafana root_url com URL do API Gateway
+        run: |
+          ENV="${{ steps.env.outputs.environment }}"
+          API_GW_URL=$(aws apigatewayv2 get-apis \
+            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
+            --output text)
+          GF_ROOT_URL="${API_GW_URL}/${ENV}/grafana/"
+          echo "Configurando Grafana: root_url=${GF_ROOT_URL}"
+          helm upgrade monitoring prometheus-community/kube-prometheus-stack \
+            --namespace monitoring \
+            --reuse-values \
+            --set "grafana.grafana\\.ini.server.root_url=${GF_ROOT_URL}" \
+            --timeout 3m \
+            --wait=false || true
