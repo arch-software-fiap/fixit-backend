@@ -51,7 +51,7 @@ resource "aws_lb_target_group" "keycloak" {
   health_check {
     enabled             = true
     protocol            = "HTTP"
-    path                = "/realms/fixit"
+    path                = "/${var.environment}/realms/fixit"
     port                = "30085"
     healthy_threshold   = 2
     unhealthy_threshold = 2
