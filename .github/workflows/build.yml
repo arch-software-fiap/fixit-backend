@@ -160,6 +160,12 @@ jobs:
           kubectl apply -f .k8s/fixit-backend/service.yml
           kubectl apply -f .k8s/fixit-backend/hpa.yml
           kubectl apply -f .k8s/fixit-backend/ingress.yml
+          # Ajusta KEYCLOAK_SERVER_URL para incluir o KC_HTTP_RELATIVE_PATH do Keycloak
+          # Sem isso o backend chama /realms/fixit mas Keycloak com KC_HTTP_RELATIVE_PATH
+          # espera /${env}/realms/fixit → JWT validation falha
+          kubectl set env deployment/fixit-backend \
+            KEYCLOAK_SERVER_URL="http://keycloak.fixit.svc.cluster.local:8080/${{ steps.env.outputs.environment }}" \
+            -n fixit
 
       - name: Atualizar imagem com SHA do commit
         run: |
