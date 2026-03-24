@@ -51,32 +51,45 @@ spec:
               memory: 512Mi
             limits:
               memory: 1024Mi
-          # startupProbe: bloqueia readiness/liveness até o Keycloak iniciar completamente.
-          # Keycloak 23 com --import-realm pode demorar >3min na primeira inicialização.
-          # 60s initial delay + 30 tentativas × 15s = até 510s de janela de startup.
+          # A imagem quay.io/keycloak/keycloak:23.0 (UBI9 minimal) não possui curl/wget.
+          # Usamos bash /dev/tcp para fazer requisição HTTP sem ferramentas externas.
+          # startupProbe bloqueia readiness/liveness até o Keycloak iniciar completamente.
+          # Keycloak 23 com --import-realm pode demorar >3min: 60s delay + 30×15s = 510s.
           startupProbe:
             exec:
               command:
-                - sh
+                - bash
                 - -c
-                - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
+                - |
+                  exec 3<>/dev/tcp/localhost/8080 &&
+                  printf "GET ${KC_HTTP_RELATIVE_PATH}/realms/fixit HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3 &&
+                  read -t5 -r line <&3 &&
+                  [[ "$line" == *"200"* ]]
             initialDelaySeconds: 60
             periodSeconds: 15
             failureThreshold: 30
           readinessProbe:
             exec:
               command:
-                - sh
+                - bash
                 - -c
-                - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
+                - |
+                  exec 3<>/dev/tcp/localhost/8080 &&
+                  printf "GET ${KC_HTTP_RELATIVE_PATH}/realms/fixit HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3 &&
+                  read -t5 -r line <&3 &&
+                  [[ "$line" == *"200"* ]]
             periodSeconds: 10
             failureThreshold: 3
           livenessProbe:
             exec:
               command:
-                - sh
+                - bash
                 - -c
-                - 'curl -sf "http://localhost:8080${KC_HTTP_RELATIVE_PATH}/realms/fixit" > /dev/null'
+                - |
+                  exec 3<>/dev/tcp/localhost/8080 &&
+                  printf "GET ${KC_HTTP_RELATIVE_PATH}/realms/fixit HTTP/1.0\r\nHost: localhost\r\n\r\n" >&3 &&
+                  read -t5 -r line <&3 &&
+                  [[ "$line" == *"200"* ]]
             periodSeconds: 30
             failureThreshold: 3
       volumes:
