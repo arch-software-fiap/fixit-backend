@@ -176,34 +176,14 @@ jobs:
             -n fixit \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Obter URL do API Gateway (para Keycloak hostname)
-        id: apigw_kc
-        run: |
-          ENV="${{ needs.terraform.outputs.environment }}"
-          API_GW_URL=$(aws apigatewayv2 get-apis \
-            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
-            --output text 2>/dev/null || echo "")
-          if [ -n "$API_GW_URL" ] && [ "$API_GW_URL" != "None" ]; then
-            KC_HOSTNAME_URL="${API_GW_URL}/${ENV}"
-          else
-            KC_HOSTNAME_URL="http://localhost:8080/${ENV}"
-          fi
-          echo "kc_hostname_url=${KC_HOSTNAME_URL}" >> $GITHUB_OUTPUT
-
       - name: Deploy Keycloak
         run: |
           kubectl apply -f .k8s/keycloak/deployment.yml
           kubectl apply -f .k8s/keycloak/service.yml
-          ENV="${{ needs.terraform.outputs.environment }}"
-          KC_URL="${{ steps.apigw_kc.outputs.kc_hostname_url }}"
-          # KC_HTTP_RELATIVE_PATH: Keycloak gera paths de assets com o stage prefix
-          # KC_PROXY_HEADERS: respeita X-Forwarded-Proto: https do API GW
-          # KC_HOSTNAME_URL / KC_HOSTNAME_ADMIN_URL: força https:// em todas as URLs geradas
+          # KC_HTTP_RELATIVE_PATH faz o Keycloak gerar paths de assets com o stage prefix
+          # Ex: /dev → <base href="/dev/resources/..."> — browser resolve com stage ✓
           kubectl set env deployment/keycloak \
-            KC_HTTP_RELATIVE_PATH="/${ENV}" \
-            KC_PROXY_HEADERS="xforwarded" \
-            KC_HOSTNAME_URL="${KC_URL}" \
-            KC_HOSTNAME_ADMIN_URL="${KC_URL}" \
+            KC_HTTP_RELATIVE_PATH="/${{ needs.terraform.outputs.environment }}" \
             -n fixit
 
       - name: Aguardar Keycloak pronto
