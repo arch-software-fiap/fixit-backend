@@ -188,27 +188,30 @@ jobs:
 
       - name: Aguardar Keycloak pronto
         run: |
-          kubectl rollout status deployment/keycloak -n fixit --timeout=300s
+          # Timeout 600s: Keycloak 23 com realm import pode demorar >5min no cold start
+          kubectl rollout status deployment/keycloak -n fixit --timeout=600s
 
       - name: Inicializar senha do usuario Keycloak
         run: |
+          ENV="${{ needs.terraform.outputs.environment }}"
           kubectl port-forward svc/keycloak 18080:8080 -n fixit &
           PF_PID=$!
           sleep 8
 
+          # Com KC_HTTP_RELATIVE_PATH=/${ENV} todos os endpoints incluem o prefixo do ambiente
           ADMIN_TOKEN=$(curl -s -X POST \
-            "http://localhost:18080/realms/master/protocol/openid-connect/token" \
+            "http://localhost:18080/${ENV}/realms/master/protocol/openid-connect/token" \
             -H "Content-Type: application/x-www-form-urlencoded" \
             -d "grant_type=password&client_id=admin-cli&username=${{ secrets.KEYCLOAK_ADMIN }}&password=${{ secrets.KEYCLOAK_ADMIN_PASSWORD }}" \
             | python3 -c "import sys,json; print(json.load(sys.stdin).get('access_token',''))")
 
           USER_ID=$(curl -s \
-            "http://localhost:18080/admin/realms/fixit/users?username=user" \
+            "http://localhost:18080/${ENV}/admin/realms/fixit/users?username=user" \
             -H "Authorization: Bearer $ADMIN_TOKEN" \
             | python3 -c "import sys,json; u=json.load(sys.stdin); print(u[0]['id'] if u else '')")
 
           curl -s -X PUT \
-            "http://localhost:18080/admin/realms/fixit/users/$USER_ID/reset-password" \
+            "http://localhost:18080/${ENV}/admin/realms/fixit/users/$USER_ID/reset-password" \
             -H "Authorization: Bearer $ADMIN_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"type":"password","value":"${{ secrets.KEYCLOAK_USER_PASSWORD }}","temporary":false}' \
