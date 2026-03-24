@@ -117,52 +117,10 @@ jobs:
             -var-file="environments/${{ steps.env.outputs.environment }}.tfvars" \
             -auto-approve
 
-  refresh-api-gateway:
-    name: "Refresh API Gateway (re-registrar nodes NLB)"
-    runs-on: ubuntu-latest
-    needs: terraform
-    if: needs.terraform.outputs.action == 'apply'
-    environment: ${{ needs.terraform.outputs.environment }}
-    permissions:
-      contents: read
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configurar AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Instalar Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.10.0"
-
-      - name: Terraform Init (API Gateway)
-        working-directory: terraform/api-gateway
-        run: |
-          terraform init \
-            -backend-config="bucket=${{ env.TF_BUCKET }}" \
-            -backend-config="key=fixit-api-gateway/${{ needs.terraform.outputs.environment }}/terraform.tfstate" \
-            -backend-config="region=${{ env.AWS_REGION }}" \
-            -backend-config="dynamodb_table=${{ env.TF_DYNAMODB_TABLE }}" \
-            -backend-config="encrypt=true"
-
-      - name: Terraform Apply (API Gateway)
-        working-directory: terraform/api-gateway
-        run: |
-          terraform apply \
-            -var="environment=${{ needs.terraform.outputs.environment }}" \
-            -auto-approve
-
   deploy-keycloak:
     name: "Deploy Keycloak"
     runs-on: ubuntu-latest
-    needs: [terraform, refresh-api-gateway]
+    needs: terraform
     if: needs.terraform.outputs.action == 'apply'
     environment: ${{ needs.terraform.outputs.environment }}
     permissions:
@@ -218,34 +176,14 @@ jobs:
             -n fixit \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: Obter URL do API Gateway (para Keycloak hostname)
-        id: apigw_kc
-        run: |
-          ENV="${{ needs.terraform.outputs.environment }}"
-          API_GW_URL=$(aws apigatewayv2 get-apis \
-            --query "Items[?Name=='${ENV}-fixit-api'].ApiEndpoint | [0]" \
-            --output text 2>/dev/null || echo "")
-          if [ -n "$API_GW_URL" ] && [ "$API_GW_URL" != "None" ]; then
-            KC_HOSTNAME_URL="${API_GW_URL}/${ENV}"
-          else
-            KC_HOSTNAME_URL="http://localhost:8080/${ENV}"
-          fi
-          echo "kc_hostname_url=${KC_HOSTNAME_URL}" >> $GITHUB_OUTPUT
-
       - name: Deploy Keycloak
         run: |
           kubectl apply -f .k8s/keycloak/deployment.yml
           kubectl apply -f .k8s/keycloak/service.yml
-          ENV="${{ needs.terraform.outputs.environment }}"
-          KC_URL="${{ steps.apigw_kc.outputs.kc_hostname_url }}"
-          # KC_HTTP_RELATIVE_PATH: Keycloak gera paths de assets com o stage prefix
-          # KC_PROXY_HEADERS: respeita X-Forwarded-Proto: https do API GW
-          # KC_HOSTNAME_URL / KC_HOSTNAME_ADMIN_URL: força https:// em todas as URLs geradas
+          # KC_HTTP_RELATIVE_PATH faz o Keycloak gerar paths de assets com o stage prefix
+          # Ex: /dev → <base href="/dev/resources/..."> — browser resolve com stage ✓
           kubectl set env deployment/keycloak \
-            KC_HTTP_RELATIVE_PATH="/${ENV}" \
-            KC_PROXY_HEADERS="xforwarded" \
-            KC_HOSTNAME_URL="${KC_URL}" \
-            KC_HOSTNAME_ADMIN_URL="${KC_URL}" \
+            KC_HTTP_RELATIVE_PATH="/${{ needs.terraform.outputs.environment }}" \
             -n fixit
 
       - name: Aguardar Keycloak pronto
